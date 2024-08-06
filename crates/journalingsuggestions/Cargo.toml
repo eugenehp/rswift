@@ -1,0 +1,16 @@
+[package]
+name = "journalingsuggestions"
+description = "Apple JournalingSuggestions — journaling suggestion picker from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "journalingsuggestions"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

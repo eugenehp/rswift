@@ -1,0 +1,16 @@
+[package]
+name = "rswift-corehaptics"
+description = "Alias for corehaptics — re-exports the corehaptics crate under the rswift- namespace"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "rswift_corehaptics"
+
+[dependencies]
+corehaptics = { path = "../corehaptics" }
+
+[lints]
+workspace = true

@@ -1,0 +1,16 @@
+[package]
+name = "replaykit"
+description = "Apple ReplayKit — screen recording and broadcasting from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "replaykit"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

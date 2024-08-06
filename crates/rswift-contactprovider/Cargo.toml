@@ -1,0 +1,16 @@
+[package]
+name = "rswift-contactprovider"
+description = "Alias for contactprovider — re-exports the contactprovider crate under the rswift- namespace"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "rswift_contactprovider"
+
+[dependencies]
+contactprovider = { path = "../contactprovider" }
+
+[lints]
+workspace = true

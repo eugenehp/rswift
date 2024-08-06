@@ -1,0 +1,17 @@
+[package]
+name = "swift-runtime"
+description = "Safe Rust interface to the Swift Runtime"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["swift", "runtime", "bindings", "safe"]
+
+[lib]
+name = "swift_runtime"
+
+[dependencies]
+swift-runtime-sys = { path = "../swift-runtime-sys" }
+
+[lints]
+workspace = true

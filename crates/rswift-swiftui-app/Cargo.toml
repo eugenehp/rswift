@@ -1,0 +1,16 @@
+[package]
+name = "rswift-swiftui-app"
+description = "Alias for swiftui-app — re-exports the swiftui-app crate under the rswift- namespace"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "rswift_swiftui_app"
+
+[dependencies]
+swiftui-app = { path = "../swiftui-app" }
+
+[lints]
+workspace = true

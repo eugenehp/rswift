@@ -1,0 +1,16 @@
+[package]
+name = "roomplan"
+description = "Apple RoomPlan — 3D room scanning with LiDAR from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "roomplan"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

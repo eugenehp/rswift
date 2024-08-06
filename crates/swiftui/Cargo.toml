@@ -1,0 +1,56 @@
+[package]
+name = "swiftui"
+description = "Build SwiftUI views from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["swift", "swiftui", "gui", "macos", "ui"]
+
+[lib]
+name = "swiftui"
+
+[features]
+default = []
+
+# ── Deployment target features ──
+# macOS deployment targets
+macos-15 = []
+macos-26 = []
+# iOS deployment targets
+ios-18 = []
+ios-26 = []
+# tvOS deployment targets
+tvos-18 = []
+tvos-26 = []
+# visionOS deployment targets
+visionos-1 = []
+visionos-2 = []
+
+# ── Framework features (all compile via #if canImport in Swift) ──
+spatial = []
+translation = []
+widgetkit = []
+appintents = []
+activitykit = []
+realitykit = []
+charts = []
+all-frameworks = ["spatial", "translation", "widgetkit", "appintents", "activitykit", "charts"]
+
+[dependencies]
+swift-runtime-sys = { path = "../swift-runtime-sys" }
+swift-runtime = { path = "../swift-runtime" }
+swiftui-sys = { path = "../swiftui-sys" }
+swiftui-macros = { path = "../swiftui-macros" }
+libc = "0.2"
+
+[[example]]
+name = "app_notes"
+path = "examples/app_notes/main.rs"
+
+[[example]]
+name = "app_dashboard"
+path = "examples/app_dashboard/main.rs"
+
+[lints]
+workspace = true

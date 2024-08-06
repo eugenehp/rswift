@@ -1,0 +1,16 @@
+[package]
+name = "spritekit"
+description = "Apple SpriteKit — 2D game engine from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "spritekit"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

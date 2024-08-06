@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "rswift"
+abstract: "Build native Apple apps from Rust — 170 framework crates, SwiftUI, Metal, visionOS"
+authors:
+  - family-names: "Hauptmann"
+    given-names: "Eugene"
+    alias: "eugenehp"
+    affiliation: "https://github.com/eugenehp"
+repository-code: "https://github.com/eugenehp/rswift"
+license: GPL-3.0
+version: 0.0.1

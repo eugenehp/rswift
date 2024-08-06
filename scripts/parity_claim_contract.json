@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "scope": {
+    "id": "v7-phase-p-foundation",
+    "description": "Phase P expanded: Phase O required coverage plus Foundation bridging gates P.1-P.6 (String, URL, Codable/serialization, collections, temporal, number formatting) with phase-level signoff evidence"
+  },
+  "required_gates": [
+    "parity_matrix_debug",
+    "parity_matrix_release",
+    "stress_gate",
+    "protocol_dispatch_matrix",
+    "abi_shape_closure",
+    "ap4_differential_oracle",
+    "ap5_reliability_soak",
+    "contract_parity_debug",
+    "contract_parity_release",
+    "support_matrix_signoff",
+    "promotion_policy_signoff",
+    "plan_completion_signoff",
+    "array_bridging_gate",
+    "dictionary_bridging_gate",
+    "error_propagation_gate",
+    "multiversion_compat_debug",
+    "multiversion_compat_release",
+    "b3_version_adapter_gate",
+    "b4_capability_negotiation_gate",
+    "c8_host_reliability_gate",
+    "c9_host_promotion_gate",
+    "phase_c_signoff",
+    "o1_remotemirror_gate",
+    "o2_concurrency_abi_gate",
+    "o3_typed_throws_gate",
+    "o4_packs_span_gate",
+    "o5_ownership_arc_gate",
+    "o8_rust_owned_executor_gate",
+    "o10_observation_gate",
+    "phase_o_signoff",
+    "phase_o_optional_tracks_signoff",
+    "phase_p_signoff"
+  ],
+  "optional_tracks": {
+    "o9_distributed_actor_surface": {
+      "classification": "experimental",
+      "promotion_status": "not-promoted-waiting"
+    }
+  },
+  "minimum_budgets": {
+    "ap4_seed_count": 32,
+    "ap4_fragment_count": 10,
+    "ap5_flake_budget": 0,
+    "ap5_history_window": 5,
+    "ap5_soak_runs": 5,
+    "stress_runs": 3,
+    "fuzz_cases": 64,
+    "array_bridging_min_passes": 1,
+    "dictionary_bridging_min_passes": 1,
+    "error_propagation_min_passes": 1,
+    "multiversion_min_swift_major": 6,
+    "multiversion_min_swift_minor": 1,
+    "c8_soak_runs": 3,
+    "c8_flake_budget": 0,
+    "c8_regression_budget_pct": 30,
+    "c9_history_window": 1
+  },
+  "toolchain_pins": {
+    "rust_toolchain_channel": "1.94.0",
+    "swift_version_prefix": "Apple Swift version 6.",
+    "cargo_lock_required": true
+  },
+  "allowed_deviations": {
+    "protocol_dispatch_required_variants": [
+      "x20",
+      "x0",
+      "x20x0",
+      "x0x1",
+      "x20x1",
+      "existential"
+    ],
+    "phase_a_gates": {
+      "array_bridging_gate": "tests Array<Int32> and Array<OpaqueRef> creation/access/mutation",
+      "dictionary_bridging_gate": "tests Dictionary<Int32,V> insertion/lookup/containment",
+      "error_propagation_gate": "tests error creation/throwing/catching/unwinding"
+    },
+    "phase_b_gates": {
+      "b3_version_adapter_gate": "tests version detection, adapter profile selection, and type layout retrieval across Swift 6.1+",
+      "b4_capability_negotiation_gate": "tests is_feature_supported() for all 12 registered capabilities + fallback unsupported-op handling",
+      "multiversion_compat_debug": "B.5 multi-version matrix in debug mode (same Rust binary, Swift 6.1+ detection)",
+      "multiversion_compat_release": "B.5 multi-version matrix in release mode"
+    }
+  }
+}

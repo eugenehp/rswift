@@ -1,0 +1,17 @@
+[package]
+name = "swift-data"
+description = "Persistent key-value store backed by UserDefaults (SwiftData alternative)"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "swift_data"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+libc = "0.2"
+
+[lints]
+workspace = true

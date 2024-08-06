@@ -1,0 +1,18 @@
+.DS_Store
+/target
+/libRustBridge.dylib
+/libRustBridge.dylib.dSYM/
+/libRuntimeThunks.dylib
+/libRuntimeThunks.dylib.dSYM/
+
+# Build artifacts
+*.dylib
+*.dSYM/
+target/
+crates/*/target/
+
+# Generated snapshots
+**/snapshots/*.png
+
+# Temp analysis files
+/tmp/swiftui_analysis/

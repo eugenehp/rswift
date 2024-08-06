@@ -1,0 +1,16 @@
+[package]
+name = "coretext"
+description = "Apple Core Text — text layout and font handling from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "coretext"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

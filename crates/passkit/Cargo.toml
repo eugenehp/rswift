@@ -1,0 +1,16 @@
+[package]
+name = "rswift-passkit"
+description = "Apple PassKit — Wallet and Apple Pay from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "passkit"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

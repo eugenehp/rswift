@@ -1,0 +1,16 @@
+[package]
+name = "dockkit"
+description = "Apple DockKit — motorized stand control from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "dockkit"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,16 @@
+[package]
+name = "rswift-clockkit"
+description = "Apple ClockKit — watchOS complications from Rust (deprecated)"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "clockkit"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

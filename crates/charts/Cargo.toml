@@ -1,0 +1,16 @@
+[package]
+name = "swift-charts"
+description = "Swift Charts — data visualization from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "swift_charts"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[lints]
+workspace = true

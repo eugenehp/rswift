@@ -1,0 +1,29 @@
+[package]
+name = "swiftui-app"
+description = "Declarative SwiftUI app builder for Rust — configure scenes, windows, and immersive spaces in build.rs, render with Metal from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["swiftui", "visionos", "metal", "apple", "app"]
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[features]
+codegen = []
+
+[[example]]
+name = "hello"
+path = "examples/hello.rs"
+
+[[example]]
+name = "metal_render"
+path = "examples/metal_render.rs"
+
+[[example]]
+name = "visionos_full"
+path = "examples/visionos_full.rs"
+
+[lints]
+workspace = true

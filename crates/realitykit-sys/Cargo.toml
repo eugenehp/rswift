@@ -1,0 +1,13 @@
+[package]
+name = "realitykit-sys"
+description = "Raw FFI bindings to RealityKit via @_cdecl bridge"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lib]
+name = "realitykit_sys"
+
+[lints]
+workspace = true
