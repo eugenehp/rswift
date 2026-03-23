@@ -36,6 +36,11 @@ const SWIFT_SOURCES: &[&str] = &[
     "AccelerateBridge.swift",
     "CoreMediaBridge.swift",
     "AudioToolboxBridge.swift",
+    "CoreLocationBridge.swift",
+    "UserNotificationsBridge.swift",
+    "ContactsBridge.swift",
+    "StoreKitBridge.swift",
+    "AppKitBridge.swift",
 ];
 
 /// Compile the Swift helper (if needed) and emit linker directives.

@@ -87,3 +87,27 @@ pub fn random_bytes(count: usize) -> Result<Vec<u8>, i32> {
     let s = unsafe { security_random_bytes(buf.as_mut_ptr(), count) };
     if s == 0 { Ok(buf) } else { Err(s) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_random_bytes_length() {
+        let b = random_bytes(32).unwrap();
+        assert_eq!(b.len(), 32);
+    }
+
+    #[test]
+    fn test_random_bytes_unique() {
+        let a = random_bytes(16).unwrap();
+        let b = random_bytes(16).unwrap();
+        assert_ne!(a, b);
+    }
+
+    #[test]
+    fn test_random_bytes_zero() {
+        let b = random_bytes(0).unwrap();
+        assert_eq!(b.len(), 0);
+    }
+}

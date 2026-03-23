@@ -444,3 +444,117 @@ pub fn timezone_offset() -> isize {
 pub fn is_valid_json(data: &[u8]) -> bool {
     unsafe { foundation_json_valid(data.as_ptr(), data.len()) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_available() {
+        assert!(is_available());
+    }
+
+    #[test]
+    fn test_uuid_unique() {
+        let a = uuid();
+        let b = uuid();
+        assert_ne!(a, b);
+        assert_eq!(a.len(), 36); // UUID format: 8-4-4-4-12
+    }
+
+    #[test]
+    fn test_userdefaults_string() {
+        UserDefaults::set_string("_rswift_test_s", "hello");
+        assert_eq!(UserDefaults::get_string("_rswift_test_s"), Some("hello".into()));
+        UserDefaults::remove("_rswift_test_s");
+        assert_eq!(UserDefaults::get_string("_rswift_test_s"), None);
+    }
+
+    #[test]
+    fn test_userdefaults_int() {
+        UserDefaults::set_int("_rswift_test_i", 42);
+        assert_eq!(UserDefaults::get_int("_rswift_test_i"), Some(42));
+        UserDefaults::remove("_rswift_test_i");
+    }
+
+    #[test]
+    fn test_userdefaults_double() {
+        UserDefaults::set_double("_rswift_test_d", 3.14);
+        let v = UserDefaults::get_double("_rswift_test_d").unwrap();
+        assert!((v - 3.14).abs() < 0.001);
+        UserDefaults::remove("_rswift_test_d");
+    }
+
+    #[test]
+    fn test_userdefaults_bool() {
+        UserDefaults::set_bool("_rswift_test_b", true);
+        assert_eq!(UserDefaults::get_bool("_rswift_test_b"), Some(true));
+        UserDefaults::remove("_rswift_test_b");
+    }
+
+    #[test]
+    fn test_filemanager_exists() {
+        assert!(FileManager::file_exists("/etc/hosts"));
+        assert!(!FileManager::file_exists("/nonexistent_path_xyz"));
+    }
+
+    #[test]
+    fn test_filemanager_is_directory() {
+        assert!(FileManager::is_directory("/tmp"));
+        assert!(!FileManager::is_directory("/etc/hosts"));
+    }
+
+    #[test]
+    fn test_filemanager_directories() {
+        assert!(!FileManager::home_directory().is_empty());
+        assert!(!FileManager::temp_directory().is_empty());
+        assert!(FileManager::documents_directory().is_some());
+    }
+
+    #[test]
+    fn test_processinfo() {
+        assert!(!ProcessInfo::hostname().is_empty());
+        let (major, _, _) = ProcessInfo::os_version();
+        assert!(major > 0);
+        assert!(ProcessInfo::processor_count() > 0);
+        assert!(ProcessInfo::physical_memory() > 0);
+        assert!(ProcessInfo::system_uptime() > 0.0);
+    }
+
+    #[test]
+    fn test_locale() {
+        assert!(!Locale::identifier().is_empty());
+        assert!(!Locale::language().is_empty());
+    }
+
+    #[test]
+    fn test_date_now() {
+        let ts = now();
+        assert!(ts > 1_700_000_000.0); // After 2023
+    }
+
+    #[test]
+    fn test_format_date() {
+        // Use a timestamp that's the same year in any timezone
+        let s = format_date(1_700_000_000.0, "yyyy");
+        assert_eq!(s, "2023");
+    }
+
+    #[test]
+    fn test_json_valid() {
+        assert!(is_valid_json(b"{}"));
+        assert!(is_valid_json(b"[1,2,3]"));
+        assert!(is_valid_json(b"{\"a\":1}"));
+        assert!(!is_valid_json(b"not json"));
+        assert!(!is_valid_json(b""));
+    }
+
+    #[test]
+    fn test_filemanager_create_remove() {
+        let dir = format!("{}/rswift_test_{}", FileManager::temp_directory(), std::process::id());
+        assert!(FileManager::create_directory(&dir));
+        assert!(FileManager::is_directory(&dir));
+        assert!(FileManager::remove(&dir));
+        assert!(!FileManager::file_exists(&dir));
+    }
+}

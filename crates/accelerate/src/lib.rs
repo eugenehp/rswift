@@ -229,3 +229,73 @@ pub mod blas {
         out
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        assert_eq!(vdsp::add_f32(&[1.0, 2.0], &[3.0, 4.0]), vec![4.0, 6.0]);
+    }
+
+    #[test]
+    fn test_sub() {
+        assert_eq!(vdsp::sub_f32(&[5.0, 3.0], &[1.0, 1.0]), vec![4.0, 2.0]);
+    }
+
+    #[test]
+    fn test_mul() {
+        assert_eq!(vdsp::mul_f32(&[2.0, 3.0], &[4.0, 5.0]), vec![8.0, 15.0]);
+    }
+
+    #[test]
+    fn test_scale() {
+        assert_eq!(vdsp::scale_f32(&[1.0, 2.0, 3.0], 10.0), vec![10.0, 20.0, 30.0]);
+    }
+
+    #[test]
+    fn test_dot() {
+        assert_eq!(vdsp::dot_f32(&[1.0, 2.0, 3.0], &[4.0, 5.0, 6.0]), 32.0);
+    }
+
+    #[test]
+    fn test_sum() {
+        assert_eq!(vdsp::sum_f32(&[1.0, 2.0, 3.0, 4.0]), 10.0);
+    }
+
+    #[test]
+    fn test_mean() {
+        assert_eq!(vdsp::mean_f32(&[2.0, 4.0, 6.0, 8.0]), 5.0);
+    }
+
+    #[test]
+    fn test_max_min() {
+        assert_eq!(vdsp::max_f32(&[3.0, 1.0, 4.0, 1.0, 5.0]), 5.0);
+        assert_eq!(vdsp::min_f32(&[3.0, 1.0, 4.0, 1.0, 5.0]), 1.0);
+    }
+
+    #[test]
+    fn test_f64_ops() {
+        assert_eq!(vdsp::add_f64(&[1.0, 2.0], &[3.0, 4.0]), vec![4.0, 6.0]);
+        assert_eq!(vdsp::dot_f64(&[1.0, 2.0], &[3.0, 4.0]), 11.0);
+        assert_eq!(vdsp::sum_f64(&[1.0, 2.0, 3.0]), 6.0);
+    }
+
+    #[test]
+    fn test_sgemm_identity() {
+        // 2×2 identity × [1,2,3,4] = [1,2,3,4]
+        let id = vec![1.0f32, 0.0, 0.0, 1.0];
+        let a = vec![1.0f32, 2.0, 3.0, 4.0];
+        let c = blas::sgemm(&id, &a, 2, 2, 2);
+        assert_eq!(c, vec![1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn test_sgemm_2x2() {
+        let a = vec![1.0f32, 2.0, 3.0, 4.0];
+        let b = vec![5.0f32, 6.0, 7.0, 8.0];
+        let c = blas::sgemm(&a, &b, 2, 2, 2);
+        assert_eq!(c, vec![19.0, 22.0, 43.0, 50.0]);
+    }
+}

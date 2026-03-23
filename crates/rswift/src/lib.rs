@@ -81,6 +81,8 @@ pub use apple_sys_helpers;
 pub use foundation;
 #[cfg(feature = "security")]
 pub use security;
+#[cfg(feature = "appkit")]
+pub use appkit;
 
 // UI
 #[cfg(feature = "swiftui")]
@@ -354,6 +356,8 @@ pub mod prelude {
     pub use foundation;
     #[cfg(feature = "security")]
     pub use security;
+    #[cfg(feature = "appkit")]
+    pub use appkit;
 
     // UI
     #[cfg(feature = "swiftui")]

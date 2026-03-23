@@ -113,3 +113,50 @@ impl std::ops::Sub for CMTime {
     type Output = CMTime;
     fn sub(self, rhs: Self) -> Self::Output { CMTime::subtract(&self, &rhs) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_seconds() {
+        let t = CMTime::from_seconds(2.5);
+        assert!((t.seconds() - 2.5).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_add() {
+        let a = CMTime::from_seconds(1.0);
+        let b = CMTime::from_seconds(2.0);
+        assert!((( a + b).seconds() - 3.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_sub() {
+        let a = CMTime::from_seconds(5.0);
+        let b = CMTime::from_seconds(2.0);
+        assert!(((a - b).seconds() - 3.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_compare() {
+        let a = CMTime::from_seconds(1.0);
+        let b = CMTime::from_seconds(2.0);
+        assert!(a < b);
+        assert!(b > a);
+        assert!(a == a);
+    }
+
+    #[test]
+    fn test_valid() {
+        let t = CMTime::from_seconds(1.0);
+        assert!(t.is_valid());
+        assert!(!t.is_indefinite());
+    }
+
+    #[test]
+    fn test_new() {
+        let t = CMTime::new(3000, 600);
+        assert!((t.seconds() - 5.0).abs() < 0.001);
+    }
+}

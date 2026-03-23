@@ -36,6 +36,9 @@ members = [
     "crates/charts",
     "crates/foundation-models",
 
+    # ── AppKit / UIKit ──
+    "crates/appkit",
+
     # ── Foundation & Core ──
     "crates/foundation",
     "crates/security",

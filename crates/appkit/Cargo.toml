@@ -1,13 +1,14 @@
 [package]
-name = "corelocation"
-description = "Apple Core Location — GPS and location services from Rust"
+name = "rswift-appkit"
+description = "Apple AppKit/UIKit — app lifecycle, clipboard, screen info, alerts from Rust"
 version = "0.0.1"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
+keywords = ["appkit", "uikit", "macos", "ios", "apple"]
 
 [lib]
-name = "corelocation"
+name = "appkit"
 
 [dependencies]
 apple-sys-helpers = { workspace = true }

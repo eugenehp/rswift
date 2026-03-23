@@ -370,6 +370,7 @@ name = "contacts"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -412,6 +413,7 @@ name = "corelocation"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1172,6 +1174,7 @@ dependencies = [
  "roomplan",
  "rswift-accelerate",
  "rswift-accessibility",
+ "rswift-appkit",
  "rswift-audiotoolbox",
  "rswift-avfoundation",
  "rswift-combine",
@@ -1291,6 +1294,14 @@ name = "rswift-appintents"
 version = "0.0.1"
 dependencies = [
  "appintents",
+]
+
+[[package]]
+name = "rswift-appkit"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2614,6 +2625,7 @@ name = "storekit"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2783,6 +2795,7 @@ name = "usernotifications"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
