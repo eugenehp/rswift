@@ -1,0 +1,24 @@
+[package]
+name = "rswift-coremedia"
+description = "Apple CoreMedia — CMTime and media timing from Rust"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["coremedia", "cmtime", "media", "apple"]
+
+[lib]
+name = "coremedia"
+
+[dependencies]
+apple-sys-helpers = { workspace = true }
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }
+
+[[example]]
+name = "check"
+path = "examples/check.rs"
+
+[lints]
+workspace = true

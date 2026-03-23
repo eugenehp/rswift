@@ -30,6 +30,12 @@ const SWIFT_SOURCES: &[&str] = &[
     "FrameworkHelpers.swift",
     "ChartsHelper.swift",
     "FoundationModelsHelper.swift",
+    "FoundationBridge.swift",
+    "SecurityBridge.swift",
+    "CoreAnimationBridge.swift",
+    "AccelerateBridge.swift",
+    "CoreMediaBridge.swift",
+    "AudioToolboxBridge.swift",
 ];
 
 /// Compile the Swift helper (if needed) and emit linker directives.

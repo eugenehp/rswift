@@ -36,6 +36,14 @@ members = [
     "crates/charts",
     "crates/foundation-models",
 
+    # ── Foundation & Core ──
+    "crates/foundation",
+    "crates/security",
+    "crates/coreanimation",
+    "crates/accelerate",
+    "crates/coremedia",
+    "crates/audiotoolbox",
+
     # ── Media & AV ──
     "crates/avfaudio",
     "crates/avfoundation",

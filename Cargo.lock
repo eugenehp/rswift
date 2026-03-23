@@ -1170,14 +1170,19 @@ dependencies = [
  "realitykit",
  "replaykit",
  "roomplan",
+ "rswift-accelerate",
  "rswift-accessibility",
+ "rswift-audiotoolbox",
  "rswift-avfoundation",
  "rswift-combine",
+ "rswift-coreanimation",
  "rswift-corebluetooth",
+ "rswift-coremedia",
  "rswift-coreml",
  "rswift-coremotion",
  "rswift-devicecheck",
  "rswift-eventkit",
+ "rswift-foundation",
  "rswift-gamekit",
  "rswift-homekit",
  "rswift-localauthentication",
@@ -1186,6 +1191,7 @@ dependencies = [
  "rswift-oslog",
  "rswift-passkit",
  "rswift-screencapturekit",
+ "rswift-security",
  "rswift-spatial",
  "rswift-translation",
  "rswift-vision",
@@ -1214,6 +1220,14 @@ dependencies = [
  "webkit",
  "widgetkit",
  "workoutkit",
+]
+
+[[package]]
+name = "rswift-accelerate"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1305,6 +1319,14 @@ name = "rswift-assignables"
 version = "0.0.1"
 dependencies = [
  "assignables",
+]
+
+[[package]]
+name = "rswift-audiotoolbox"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1450,6 +1472,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rswift-coreanimation"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
+]
+
+[[package]]
 name = "rswift-corebluetooth"
 version = "0.0.1"
 dependencies = [
@@ -1496,6 +1526,14 @@ name = "rswift-corelocation"
 version = "0.0.1"
 dependencies = [
  "corelocation",
+]
+
+[[package]]
+name = "rswift-coremedia"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1643,6 +1681,14 @@ name = "rswift-financekit"
 version = "0.0.1"
 dependencies = [
  "financekit",
+]
+
+[[package]]
+name = "rswift-foundation"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2106,6 +2152,14 @@ name = "rswift-secureelementcredential"
 version = "0.0.1"
 dependencies = [
  "secureelementcredential",
+]
+
+[[package]]
+name = "rswift-security"
+version = "0.0.1"
+dependencies = [
+ "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]

@@ -77,6 +77,10 @@ pub use swift_runtime;
 pub use swift_runtime_sys;
 #[cfg(feature = "apple-sys-helpers")]
 pub use apple_sys_helpers;
+#[cfg(feature = "foundation")]
+pub use foundation;
+#[cfg(feature = "security")]
+pub use security;
 
 // UI
 #[cfg(feature = "swiftui")]
@@ -115,6 +119,10 @@ pub use screencapturekit;
 pub use replaykit;
 #[cfg(feature = "photosui")]
 pub use photosui;
+#[cfg(feature = "coremedia")]
+pub use coremedia;
+#[cfg(feature = "audiotoolbox")]
+pub use audiotoolbox;
 
 // ML & AI
 #[cfg(feature = "coreml")]
@@ -129,8 +137,12 @@ pub use naturallanguage;
 pub use foundation_models;
 #[cfg(feature = "translation")]
 pub use translation;
+#[cfg(feature = "accelerate")]
+pub use accelerate;
 
-// Graphics
+// Graphics & Animation
+#[cfg(feature = "coreanimation")]
+pub use coreanimation;
 #[cfg(feature = "metal")]
 pub use metal;
 #[cfg(feature = "scenekit")]
@@ -338,6 +350,10 @@ pub mod prelude {
     pub use swift_runtime;
     #[cfg(feature = "apple-sys-helpers")]
     pub use apple_sys_helpers;
+    #[cfg(feature = "foundation")]
+    pub use foundation;
+    #[cfg(feature = "security")]
+    pub use security;
 
     // UI
     #[cfg(feature = "swiftui")]
@@ -370,8 +386,12 @@ pub mod prelude {
     pub use translation;
 
     // Graphics
+    #[cfg(feature = "coreanimation")]
+    pub use coreanimation;
     #[cfg(feature = "metal")]
     pub use metal;
+    #[cfg(feature = "accelerate")]
+    pub use accelerate;
     #[cfg(feature = "coregraphics")]
     pub use coregraphics;
     #[cfg(feature = "coreimage")]

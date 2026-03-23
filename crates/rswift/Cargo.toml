@@ -40,8 +40,8 @@ full = [
     "hardware", "system", "comms", "ar-vr",
 ]
 
-## Core Swift runtime and helpers.
-runtime = ["swift-runtime", "swift-runtime-sys", "apple-sys-helpers"]
+## Core Swift runtime, Foundation, and helpers.
+runtime = ["swift-runtime", "swift-runtime-sys", "apple-sys-helpers", "foundation", "security"]
 
 ## UI frameworks.
 ui = ["swiftui", "swiftui-app", "charts", "tipkit", "widgetkit"]
@@ -50,19 +50,19 @@ ui = ["swiftui", "swiftui-app", "charts", "tipkit", "widgetkit"]
 media = [
     "avfaudio", "avfoundation", "avkit", "mediaplayer", "musickit",
     "cinematic", "shazamkit", "soundanalysis", "speech",
-    "screencapturekit", "replaykit", "photosui",
+    "screencapturekit", "replaykit", "photosui", "coremedia", "audiotoolbox",
 ]
 
-## Machine learning & AI.
+## Machine learning & AI, plus hardware-accelerated math.
 ml = [
     "coreml", "createml", "vision", "naturallanguage",
-    "foundation-models", "translation",
+    "foundation-models", "translation", "accelerate",
 ]
 
 ## Graphics & rendering.
 graphics = [
     "metal", "scenekit", "spritekit", "coregraphics", "coreimage",
-    "coretext",
+    "coretext", "coreanimation",
 ]
 
 ## Data & persistence.
@@ -124,6 +124,8 @@ ar-vr = [
 swift-runtime       = ["dep:swift-runtime"]
 swift-runtime-sys   = ["dep:swift-runtime-sys"]
 apple-sys-helpers   = ["dep:apple-sys-helpers"]
+foundation          = ["dep:foundation"]
+security            = ["dep:security"]
 
 # UI
 swiftui             = ["dep:swiftui"]
@@ -145,6 +147,8 @@ speech              = ["dep:speech"]
 screencapturekit    = ["dep:screencapturekit"]
 replaykit           = ["dep:replaykit"]
 photosui            = ["dep:photosui"]
+coremedia           = ["dep:coremedia"]
+audiotoolbox        = ["dep:audiotoolbox"]
 
 # ML & AI
 coreml              = ["dep:coreml"]
@@ -153,8 +157,10 @@ vision              = ["dep:vision"]
 naturallanguage     = ["dep:naturallanguage"]
 foundation-models   = ["dep:foundation-models"]
 translation         = ["dep:translation"]
+accelerate          = ["dep:accelerate"]
 
-# Graphics
+# Graphics & Animation
+coreanimation       = ["dep:coreanimation"]
 metal               = ["dep:metal"]
 scenekit            = ["dep:scenekit"]
 spritekit           = ["dep:spritekit"]
@@ -269,6 +275,8 @@ weatherkit          = ["dep:weatherkit"]
 swift-runtime       = { path = "../swift-runtime", optional = true }
 swift-runtime-sys   = { path = "../swift-runtime-sys", optional = true }
 apple-sys-helpers   = { path = "../apple-sys-helpers", optional = true }
+foundation          = { package = "rswift-foundation", path = "../foundation", optional = true }
+security            = { package = "rswift-security", path = "../security", optional = true }
 
 # UI
 swiftui             = { path = "../swiftui", optional = true }
@@ -290,6 +298,8 @@ speech              = { path = "../speech", optional = true }
 screencapturekit    = { package = "rswift-screencapturekit", path = "../screencapturekit", optional = true }
 replaykit           = { path = "../replaykit", optional = true }
 photosui            = { path = "../photosui", optional = true }
+coremedia           = { package = "rswift-coremedia", path = "../coremedia", optional = true }
+audiotoolbox        = { package = "rswift-audiotoolbox", path = "../audiotoolbox", optional = true }
 
 # ML & AI
 coreml              = { package = "rswift-coreml", path = "../coreml", optional = true }
@@ -298,8 +308,10 @@ vision              = { package = "rswift-vision", path = "../vision", optional 
 naturallanguage     = { path = "../naturallanguage", optional = true }
 foundation-models   = { path = "../foundation-models", optional = true }
 translation         = { package = "rswift-translation", path = "../translation", optional = true }
+accelerate          = { package = "rswift-accelerate", path = "../accelerate", optional = true }
 
-# Graphics
+# Graphics & Animation
+coreanimation       = { package = "rswift-coreanimation", path = "../coreanimation", optional = true }
 metal               = { package = "rswift-metal", path = "../metal", optional = true }
 scenekit            = { path = "../scenekit", optional = true }
 spritekit           = { path = "../spritekit", optional = true }
