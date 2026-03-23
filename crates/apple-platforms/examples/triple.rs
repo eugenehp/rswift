@@ -1,9 +1,22 @@
 use apple_platforms::triple::Triple;
 
-pub fn main() {
-    let rust_target = "aarch64-apple-visionos";
-    let clang_target = Triple::target_to_clang_target(rust_target);
+fn main() {
+    println!("=== Rust → Clang Target Conversion ===\n");
 
-    println!("Converted from {rust_target} to {clang_target}");
-    // Converted from aarch64-apple-visionos to arm64-apple-xros
+    let targets = [
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "aarch64-apple-ios",
+        "aarch64-apple-ios-sim",
+        "aarch64-apple-tvos",
+        "aarch64-apple-watchos",
+        "aarch64-apple-visionos",
+        "aarch64-apple-ios-macabi",
+        "aarch64-apple-driverkit",
+    ];
+
+    for target in targets {
+        let clang = Triple::target_to_clang_target(target);
+        println!("  {target:<40} → {clang}");
+    }
 }
