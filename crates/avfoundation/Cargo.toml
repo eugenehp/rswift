@@ -5,12 +5,28 @@ version = "0.0.1"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
+keywords = ["avfoundation", "video", "audio", "playback", "apple"]
 
 [lib]
 name = "avfoundation"
 
 [dependencies]
 apple-sys-helpers = { workspace = true }
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }
+
+[[example]]
+name = "check"
+path = "examples/check.rs"
+
+[[example]]
+name = "player"
+path = "examples/player.rs"
+
+[[example]]
+name = "asset_info"
+path = "examples/asset_info.rs"
 
 [lints]
 workspace = true

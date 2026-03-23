@@ -175,6 +175,7 @@ name = "avfaudio"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1102,6 +1103,120 @@ dependencies = [
 ]
 
 [[package]]
+name = "rswift"
+version = "0.0.1"
+dependencies = [
+ "accessorysetupkit",
+ "activitykit",
+ "adservices",
+ "adsupport",
+ "appintents",
+ "apple-sys-helpers",
+ "apptrackingtransparency",
+ "arkit",
+ "authenticationservices",
+ "avfaudio",
+ "avkit",
+ "backgroundtasks",
+ "callkit",
+ "cinematic",
+ "cloudkit",
+ "compositorservices",
+ "contacts",
+ "coredata",
+ "coregraphics",
+ "corehaptics",
+ "corehid",
+ "coreimage",
+ "corelocation",
+ "corenfc",
+ "corespotlight",
+ "coretext",
+ "coretransferable",
+ "createml",
+ "cryptokit",
+ "cryptotokenkit",
+ "datadetection",
+ "dockkit",
+ "extensionkit",
+ "fileprovider",
+ "financekit",
+ "foundation-models",
+ "gamecontroller",
+ "gameplaykit",
+ "gamesave",
+ "groupactivities",
+ "healthkit",
+ "identitylookup",
+ "imageplayground",
+ "intents",
+ "linkpresentation",
+ "livecommunicationkit",
+ "mapkit",
+ "mediaplayer",
+ "messageui",
+ "metrickit",
+ "multipeerconnectivity",
+ "musickit",
+ "naturallanguage",
+ "nearbyinteraction",
+ "networkextension",
+ "pdfkit",
+ "pencilkit",
+ "photosui",
+ "pushkit",
+ "quicklook",
+ "realityfoundation",
+ "realitykit",
+ "replaykit",
+ "roomplan",
+ "rswift-accessibility",
+ "rswift-avfoundation",
+ "rswift-combine",
+ "rswift-corebluetooth",
+ "rswift-coreml",
+ "rswift-coremotion",
+ "rswift-devicecheck",
+ "rswift-eventkit",
+ "rswift-gamekit",
+ "rswift-homekit",
+ "rswift-localauthentication",
+ "rswift-metal",
+ "rswift-network",
+ "rswift-oslog",
+ "rswift-passkit",
+ "rswift-screencapturekit",
+ "rswift-spatial",
+ "rswift-translation",
+ "rswift-vision",
+ "rswift-weatherkit",
+ "safariservices",
+ "scenekit",
+ "sensorkit",
+ "shazamkit",
+ "soundanalysis",
+ "speech",
+ "spritekit",
+ "storekit",
+ "swift-charts",
+ "swift-data",
+ "swift-helper-build",
+ "swift-runtime",
+ "swift-runtime-sys",
+ "swiftdata",
+ "swiftui",
+ "swiftui-app",
+ "tipkit",
+ "uniformtypeidentifiers",
+ "usernotifications",
+ "videosubscriberaccount",
+ "visionkit",
+ "webkit",
+ "widgetkit",
+ "workoutkit",
+]
+
+[[package]]
 name = "rswift-accessibility"
 version = "0.0.1"
 dependencies = [
@@ -1218,6 +1333,7 @@ name = "rswift-avfaudio"
 version = "0.0.1"
 dependencies = [
  "avfaudio",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1225,6 +1341,7 @@ name = "rswift-avfoundation"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2184,6 +2301,7 @@ dependencies = [
 name = "rswift-videosubscriberaccount"
 version = "0.0.1"
 dependencies = [
+ "swift-helper-build",
  "videosubscriberaccount",
 ]
 
@@ -2475,6 +2593,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "swift-helper-build"
+version = "0.0.1"
+
+[[package]]
 name = "swift-runtime"
 version = "0.0.1"
 dependencies = [
@@ -2620,6 +2742,7 @@ name = "videosubscriberaccount"
 version = "0.0.1"
 dependencies = [
  "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]

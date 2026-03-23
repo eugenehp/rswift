@@ -1,0 +1,418 @@
+[package]
+name = "rswift"
+description = "Build native Apple apps from Rust — unified re-export of all rswift framework crates"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["apple", "swift", "macos", "ios", "framework"]
+categories = ["api-bindings", "os::macos-apis"]
+
+[lib]
+name = "rswift"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Features
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Pick only the frameworks you need:
+#
+#   rswift = { version = "0.0.1", features = ["avfaudio", "metal", "swiftui"] }
+#
+# Or pull in a category:
+#
+#   rswift = { version = "0.0.1", features = ["media"] }
+#
+# Or everything:
+#
+#   rswift = { version = "0.0.1", features = ["full"] }
+#
+
+[features]
+default = []
+
+# ── Category bundles ─────────────────────────────────────────────────────────
+
+## Everything.
+full = [
+    "runtime", "ui", "media", "ml", "graphics", "data", "auth",
+    "network", "location", "health", "commerce", "games",
+    "hardware", "system", "comms", "ar-vr",
+]
+
+## Core Swift runtime and helpers.
+runtime = ["swift-runtime", "swift-runtime-sys", "apple-sys-helpers"]
+
+## UI frameworks.
+ui = ["swiftui", "swiftui-app", "charts", "tipkit", "widgetkit"]
+
+## Media & AV.
+media = [
+    "avfaudio", "avfoundation", "avkit", "mediaplayer", "musickit",
+    "cinematic", "shazamkit", "soundanalysis", "speech",
+    "screencapturekit", "replaykit", "photosui",
+]
+
+## Machine learning & AI.
+ml = [
+    "coreml", "createml", "vision", "naturallanguage",
+    "foundation-models", "translation",
+]
+
+## Graphics & rendering.
+graphics = [
+    "metal", "scenekit", "spritekit", "coregraphics", "coreimage",
+    "coretext",
+]
+
+## Data & persistence.
+data = ["swift-data", "swiftdata", "coredata", "cloudkit", "combine"]
+
+## Authentication & security.
+auth = [
+    "authenticationservices", "cryptokit", "cryptotokenkit",
+    "localauthentication", "devicecheck",
+]
+
+## Networking.
+network = [
+    "network-framework", "networkextension", "multipeerconnectivity",
+    "linkpresentation", "webkit",
+]
+
+## Location & maps.
+location = ["corelocation", "mapkit"]
+
+## Health & fitness.
+health = ["healthkit", "workoutkit"]
+
+## Commerce & payments.
+commerce = ["storekit", "passkit", "financekit"]
+
+## Games.
+games = [
+    "gamekit", "gamecontroller", "gameplaykit", "gamesave",
+]
+
+## Hardware & sensors.
+hardware = [
+    "corebluetooth", "corehaptics", "corehid", "coremotion", "corenfc",
+    "nearbyinteraction", "dockkit", "sensorkit",
+]
+
+## System services.
+system = [
+    "oslog", "backgroundtasks", "extensionkit", "uniformtypeidentifiers",
+    "usernotifications", "pushkit", "eventkit",
+]
+
+## Communication.
+comms = [
+    "callkit", "messageui", "contacts", "livecommunicationkit",
+    "groupactivities",
+]
+
+## AR / VR / Spatial.
+ar-vr = [
+    "arkit", "realitykit", "realityfoundation", "spatial",
+    "roomplan", "compositorservices",
+]
+
+# ── Individual framework features ────────────────────────────────────────────
+
+# Core
+swift-runtime       = ["dep:swift-runtime"]
+swift-runtime-sys   = ["dep:swift-runtime-sys"]
+apple-sys-helpers   = ["dep:apple-sys-helpers"]
+
+# UI
+swiftui             = ["dep:swiftui"]
+swiftui-app         = ["dep:swiftui-app"]
+charts              = ["dep:swift-charts"]
+tipkit              = ["dep:tipkit"]
+widgetkit           = ["dep:widgetkit"]
+
+# Media & AV
+avfaudio            = ["dep:avfaudio"]
+avfoundation        = ["dep:avfoundation"]
+avkit               = ["dep:avkit"]
+mediaplayer         = ["dep:mediaplayer"]
+musickit            = ["dep:musickit"]
+cinematic           = ["dep:cinematic"]
+shazamkit           = ["dep:shazamkit"]
+soundanalysis       = ["dep:soundanalysis"]
+speech              = ["dep:speech"]
+screencapturekit    = ["dep:screencapturekit"]
+replaykit           = ["dep:replaykit"]
+photosui            = ["dep:photosui"]
+
+# ML & AI
+coreml              = ["dep:coreml"]
+createml            = ["dep:createml"]
+vision              = ["dep:vision"]
+naturallanguage     = ["dep:naturallanguage"]
+foundation-models   = ["dep:foundation-models"]
+translation         = ["dep:translation"]
+
+# Graphics
+metal               = ["dep:metal"]
+scenekit            = ["dep:scenekit"]
+spritekit           = ["dep:spritekit"]
+coregraphics        = ["dep:coregraphics"]
+coreimage           = ["dep:coreimage"]
+coretext            = ["dep:coretext"]
+
+# Data
+swift-data          = ["dep:swift-data"]
+swiftdata           = ["dep:swiftdata"]
+coredata            = ["dep:coredata"]
+cloudkit            = ["dep:cloudkit"]
+combine             = ["dep:combine"]
+
+# Auth & Security
+authenticationservices = ["dep:authenticationservices"]
+cryptokit           = ["dep:cryptokit"]
+cryptotokenkit      = ["dep:cryptotokenkit"]
+localauthentication = ["dep:localauthentication"]
+devicecheck         = ["dep:devicecheck"]
+
+# Networking
+network-framework   = ["dep:network"]
+networkextension    = ["dep:networkextension"]
+multipeerconnectivity = ["dep:multipeerconnectivity"]
+linkpresentation    = ["dep:linkpresentation"]
+webkit              = ["dep:webkit"]
+
+# Location
+corelocation        = ["dep:corelocation"]
+mapkit              = ["dep:mapkit"]
+
+# Health
+healthkit           = ["dep:healthkit"]
+workoutkit          = ["dep:workoutkit"]
+
+# Commerce
+storekit            = ["dep:storekit"]
+passkit             = ["dep:passkit"]
+financekit          = ["dep:financekit"]
+
+# Games
+gamekit             = ["dep:gamekit"]
+gamecontroller      = ["dep:gamecontroller"]
+gameplaykit         = ["dep:gameplaykit"]
+gamesave            = ["dep:gamesave"]
+
+# Hardware
+corebluetooth       = ["dep:corebluetooth"]
+corehaptics         = ["dep:corehaptics"]
+corehid             = ["dep:corehid"]
+coremotion          = ["dep:coremotion"]
+corenfc             = ["dep:corenfc"]
+nearbyinteraction   = ["dep:nearbyinteraction"]
+dockkit             = ["dep:dockkit"]
+sensorkit           = ["dep:sensorkit"]
+
+# System
+oslog               = ["dep:oslog"]
+backgroundtasks     = ["dep:backgroundtasks"]
+extensionkit        = ["dep:extensionkit"]
+uniformtypeidentifiers = ["dep:uniformtypeidentifiers"]
+usernotifications   = ["dep:usernotifications"]
+pushkit             = ["dep:pushkit"]
+eventkit            = ["dep:eventkit"]
+
+# Communication
+callkit             = ["dep:callkit"]
+messageui           = ["dep:messageui"]
+contacts            = ["dep:contacts"]
+livecommunicationkit = ["dep:livecommunicationkit"]
+groupactivities     = ["dep:groupactivities"]
+
+# AR / VR / Spatial
+arkit               = ["dep:arkit"]
+realitykit          = ["dep:realitykit"]
+realityfoundation   = ["dep:realityfoundation"]
+spatial             = ["dep:spatial"]
+roomplan            = ["dep:roomplan"]
+compositorservices  = ["dep:compositorservices"]
+
+# ── Additional frameworks ────────────────────────────────────────────────────
+
+accessibility       = ["dep:accessibility"]
+accessorysetupkit   = ["dep:accessorysetupkit"]
+activitykit         = ["dep:activitykit"]
+adservices          = ["dep:adservices"]
+adsupport           = ["dep:adsupport"]
+appintents          = ["dep:appintents"]
+apptrackingtransparency = ["dep:apptrackingtransparency"]
+corespotlight       = ["dep:corespotlight"]
+coretransferable    = ["dep:coretransferable"]
+datadetection       = ["dep:datadetection"]
+fileprovider        = ["dep:fileprovider"]
+homekit             = ["dep:homekit"]
+identitylookup      = ["dep:identitylookup"]
+imageplayground     = ["dep:imageplayground"]
+intents             = ["dep:intents"]
+metrickit           = ["dep:metrickit"]
+pdfkit              = ["dep:pdfkit"]
+pencilkit           = ["dep:pencilkit"]
+quicklook           = ["dep:quicklook"]
+safariservices      = ["dep:safariservices"]
+videosubscriberaccount = ["dep:videosubscriberaccount"]
+visionkit           = ["dep:visionkit"]
+weatherkit          = ["dep:weatherkit"]
+
+# ── Optional dependencies (all gated behind features) ───────────────────────
+
+[dependencies]
+# Core
+swift-runtime       = { path = "../swift-runtime", optional = true }
+swift-runtime-sys   = { path = "../swift-runtime-sys", optional = true }
+apple-sys-helpers   = { path = "../apple-sys-helpers", optional = true }
+
+# UI
+swiftui             = { path = "../swiftui", optional = true }
+swiftui-app         = { path = "../swiftui-app", optional = true }
+swift-charts        = { path = "../charts", optional = true }
+tipkit              = { path = "../tipkit", optional = true }
+widgetkit           = { path = "../widgetkit", optional = true }
+
+# Media & AV
+avfaudio            = { path = "../avfaudio", optional = true }
+avfoundation        = { package = "rswift-avfoundation", path = "../avfoundation", optional = true }
+avkit               = { path = "../avkit", optional = true }
+mediaplayer         = { path = "../mediaplayer", optional = true }
+musickit            = { path = "../musickit", optional = true }
+cinematic           = { path = "../cinematic", optional = true }
+shazamkit           = { path = "../shazamkit", optional = true }
+soundanalysis       = { path = "../soundanalysis", optional = true }
+speech              = { path = "../speech", optional = true }
+screencapturekit    = { package = "rswift-screencapturekit", path = "../screencapturekit", optional = true }
+replaykit           = { path = "../replaykit", optional = true }
+photosui            = { path = "../photosui", optional = true }
+
+# ML & AI
+coreml              = { package = "rswift-coreml", path = "../coreml", optional = true }
+createml            = { path = "../createml", optional = true }
+vision              = { package = "rswift-vision", path = "../vision", optional = true }
+naturallanguage     = { path = "../naturallanguage", optional = true }
+foundation-models   = { path = "../foundation-models", optional = true }
+translation         = { package = "rswift-translation", path = "../translation", optional = true }
+
+# Graphics
+metal               = { package = "rswift-metal", path = "../metal", optional = true }
+scenekit            = { path = "../scenekit", optional = true }
+spritekit           = { path = "../spritekit", optional = true }
+coregraphics        = { path = "../coregraphics", optional = true }
+coreimage           = { path = "../coreimage", optional = true }
+coretext            = { path = "../coretext", optional = true }
+
+# Data & Persistence
+swift-data          = { path = "../swift-data", optional = true }
+swiftdata           = { path = "../swiftdata", optional = true }
+coredata            = { path = "../coredata", optional = true }
+cloudkit            = { path = "../cloudkit", optional = true }
+combine             = { package = "rswift-combine", path = "../combine", optional = true }
+
+# Auth & Security
+authenticationservices = { path = "../authenticationservices", optional = true }
+cryptokit           = { path = "../cryptokit", optional = true }
+cryptotokenkit      = { path = "../cryptotokenkit", optional = true }
+localauthentication = { package = "rswift-localauthentication", path = "../localauthentication", optional = true }
+devicecheck         = { package = "rswift-devicecheck", path = "../devicecheck", optional = true }
+
+# Networking
+network             = { package = "rswift-network", path = "../network", optional = true }
+networkextension    = { path = "../networkextension", optional = true }
+multipeerconnectivity = { path = "../multipeerconnectivity", optional = true }
+linkpresentation    = { path = "../linkpresentation", optional = true }
+webkit              = { path = "../webkit", optional = true }
+
+# Location
+corelocation        = { path = "../corelocation", optional = true }
+mapkit              = { path = "../mapkit", optional = true }
+
+# Health
+healthkit           = { path = "../healthkit", optional = true }
+workoutkit          = { path = "../workoutkit", optional = true }
+
+# Commerce
+storekit            = { path = "../storekit", optional = true }
+passkit             = { package = "rswift-passkit", path = "../passkit", optional = true }
+financekit          = { path = "../financekit", optional = true }
+
+# Games
+gamekit             = { package = "rswift-gamekit", path = "../gamekit", optional = true }
+gamecontroller      = { path = "../gamecontroller", optional = true }
+gameplaykit         = { path = "../gameplaykit", optional = true }
+gamesave            = { path = "../gamesave", optional = true }
+
+# Hardware & Sensors
+corebluetooth       = { package = "rswift-corebluetooth", path = "../corebluetooth", optional = true }
+corehaptics         = { path = "../corehaptics", optional = true }
+corehid             = { path = "../corehid", optional = true }
+coremotion          = { package = "rswift-coremotion", path = "../coremotion", optional = true }
+corenfc             = { path = "../corenfc", optional = true }
+nearbyinteraction   = { path = "../nearbyinteraction", optional = true }
+dockkit             = { path = "../dockkit", optional = true }
+sensorkit           = { path = "../sensorkit", optional = true }
+
+# System
+oslog               = { package = "rswift-oslog", path = "../oslog", optional = true }
+backgroundtasks     = { path = "../backgroundtasks", optional = true }
+extensionkit        = { path = "../extensionkit", optional = true }
+uniformtypeidentifiers = { path = "../uniformtypeidentifiers", optional = true }
+usernotifications   = { path = "../usernotifications", optional = true }
+pushkit             = { path = "../pushkit", optional = true }
+eventkit            = { package = "rswift-eventkit", path = "../eventkit", optional = true }
+
+# Communication
+callkit             = { path = "../callkit", optional = true }
+messageui           = { path = "../messageui", optional = true }
+contacts            = { path = "../contacts", optional = true }
+livecommunicationkit = { path = "../livecommunicationkit", optional = true }
+groupactivities     = { path = "../groupactivities", optional = true }
+
+# AR / VR / Spatial
+arkit               = { path = "../arkit", optional = true }
+realitykit          = { path = "../realitykit", optional = true }
+realityfoundation   = { path = "../realityfoundation", optional = true }
+spatial             = { package = "rswift-spatial", path = "../spatial", optional = true }
+roomplan            = { path = "../roomplan", optional = true }
+compositorservices  = { path = "../compositorservices", optional = true }
+
+# Additional
+accessibility       = { package = "rswift-accessibility", path = "../accessibility", optional = true }
+accessorysetupkit   = { path = "../accessorysetupkit", optional = true }
+activitykit         = { path = "../activitykit", optional = true }
+adservices          = { path = "../adservices", optional = true }
+adsupport           = { path = "../adsupport", optional = true }
+appintents          = { path = "../appintents", optional = true }
+apptrackingtransparency = { path = "../apptrackingtransparency", optional = true }
+corespotlight       = { path = "../corespotlight", optional = true }
+coretransferable    = { path = "../coretransferable", optional = true }
+datadetection       = { path = "../datadetection", optional = true }
+fileprovider        = { path = "../fileprovider", optional = true }
+homekit             = { package = "rswift-homekit", path = "../homekit", optional = true }
+identitylookup      = { path = "../identitylookup", optional = true }
+imageplayground     = { path = "../imageplayground", optional = true }
+intents             = { path = "../intents", optional = true }
+metrickit           = { path = "../metrickit", optional = true }
+pdfkit              = { path = "../pdfkit", optional = true }
+pencilkit           = { path = "../pencilkit", optional = true }
+quicklook           = { path = "../quicklook", optional = true }
+safariservices      = { path = "../safariservices", optional = true }
+videosubscriberaccount = { path = "../videosubscriberaccount", optional = true }
+visionkit           = { path = "../visionkit", optional = true }
+weatherkit          = { package = "rswift-weatherkit", path = "../weatherkit", optional = true }
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }
+
+[[example]]
+name = "check"
+path = "examples/check.rs"
+required-features = ["avfaudio", "avfoundation", "metal"]
+
+[lints]
+workspace = true

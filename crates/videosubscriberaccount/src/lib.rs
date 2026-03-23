@@ -2,9 +2,23 @@
 //!
 //! **Platform support:** macOS 10.14+, iOS 10+, tvOS 10+.
 //!
+//! Wraps VideoSubscriberAccount for TV provider single sign-on and
+//! subscriber verification. The Swift helper is compiled and linked
+//! automatically via `build.rs` — no manual setup needed.
+//!
+//! # Quick start
+//!
 //! ```ignore
-//! assert!(videosubscriberaccount::is_available());
+//! if videosubscriberaccount::is_available() {
+//!     println!("✅ TV provider authentication is available");
+//! }
 //! ```
+//!
+//! # Use cases
+//!
+//! - **Single sign-on** with cable/satellite TV providers
+//! - **Subscriber verification** for premium content
+//! - **TV provider picker** UI integration
 
 //!
 //! ## Citation

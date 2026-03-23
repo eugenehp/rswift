@@ -17,6 +17,10 @@ members = [
 
     # ── Shared helpers ──
     "crates/apple-sys-helpers",
+    "crates/swift-helper-build",
+
+    # ── Unified crate ──
+    "crates/rswift",
 
     # ── Code generation ──
     "crates/swift-bridge-gen",

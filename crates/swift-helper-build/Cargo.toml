@@ -1,0 +1,10 @@
+[package]
+name = "swift-helper-build"
+description = "Build-time helper: compile and link the Swift helper dylib"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+
+[lints]
+workspace = true
