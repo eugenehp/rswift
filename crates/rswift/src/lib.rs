@@ -77,6 +77,8 @@ pub use swift_runtime;
 pub use swift_runtime_sys;
 #[cfg(feature = "apple-sys-helpers")]
 pub use apple_sys_helpers;
+#[cfg(feature = "apple-platforms")]
+pub use apple_platforms;
 #[cfg(feature = "foundation")]
 pub use foundation;
 #[cfg(feature = "security")]

@@ -41,7 +41,7 @@ full = [
 ]
 
 ## Core Swift runtime, Foundation, and helpers.
-runtime = ["swift-runtime", "swift-runtime-sys", "apple-sys-helpers", "foundation", "security", "appkit"]
+runtime = ["swift-runtime", "swift-runtime-sys", "apple-sys-helpers", "apple-platforms", "foundation", "security", "appkit"]
 
 ## UI frameworks.
 ui = ["swiftui", "swiftui-app", "charts", "tipkit", "widgetkit"]
@@ -124,6 +124,7 @@ ar-vr = [
 swift-runtime       = ["dep:swift-runtime"]
 swift-runtime-sys   = ["dep:swift-runtime-sys"]
 apple-sys-helpers   = ["dep:apple-sys-helpers"]
+apple-platforms     = ["dep:apple-platforms"]
 foundation          = ["dep:foundation"]
 security            = ["dep:security"]
 appkit              = ["dep:appkit"]
@@ -276,6 +277,7 @@ weatherkit          = ["dep:weatherkit"]
 swift-runtime       = { path = "../swift-runtime", optional = true }
 swift-runtime-sys   = { path = "../swift-runtime-sys", optional = true }
 apple-sys-helpers   = { path = "../apple-sys-helpers", optional = true }
+apple-platforms     = { path = "../apple-platforms", optional = true }
 foundation          = { package = "rswift-foundation", path = "../foundation", optional = true }
 security            = { package = "rswift-security", path = "../security", optional = true }
 appkit              = { package = "rswift-appkit", path = "../appkit", optional = true }

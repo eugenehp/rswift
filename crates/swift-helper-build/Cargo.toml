@@ -6,5 +6,8 @@ edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
 
+[dependencies]
+apple-platforms = { path = "../apple-platforms" }
+
 [lints]
 workspace = true

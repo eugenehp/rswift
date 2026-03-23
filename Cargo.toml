@@ -17,6 +17,7 @@ members = [
 
     # ── Shared helpers ──
     "crates/apple-sys-helpers",
+    "crates/apple-platforms",
     "crates/swift-helper-build",
 
     # ── Unified crate ──

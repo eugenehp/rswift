@@ -1,0 +1,25 @@
+[package]
+name = "apple-platforms"
+version = "0.0.3"
+edition = "2021"
+authors = ["Eugene Hauptmann"]
+description = "A convenient list of Apple platforms from LLVM in Rust"
+license = "MIT"
+repository = "https://github.com/eugenehp/rswift"
+homepage = "https://github.com/eugenehp/apple-platforms"
+keywords = ["apple", "llvm", "clang", "platform", "macos"]
+
+[[example]]
+name = "platform"
+
+[[example]]
+name = "triple"
+
+[[example]]
+name = "sdk"
+
+[dependencies]
+anyhow = "1.0.86"
+
+[lints]
+workspace = true

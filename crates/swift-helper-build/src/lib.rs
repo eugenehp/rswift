@@ -311,6 +311,18 @@ fn get_sdk_path() -> Option<String> {
 }
 
 fn get_swift_target() -> String {
+    let target = std::env::var("TARGET").unwrap_or_default();
+
+    // Use apple-platforms for proper Rust→Clang target conversion
+    let clang_target = apple_platforms::triple::Triple::target_to_clang_target(&target);
+
+    // If conversion succeeded (not identity), use it with version suffix
+    if clang_target != target && !clang_target.is_empty() {
+        let sdk_ver = detect_sdk_version(&target);
+        return format!("{clang_target}{sdk_ver}");
+    }
+
+    // Fallback: manual macOS target construction
     let macos_ver = std::env::var("MACOS_VERSION").ok().unwrap_or_else(|| {
         Command::new("xcrun")
             .args(["--sdk", "macosx", "--show-sdk-version"])
@@ -322,12 +334,23 @@ fn get_swift_target() -> String {
             })
             .unwrap_or("15.0".into())
     });
-    let target = std::env::var("TARGET").unwrap_or_default();
     if target.contains("x86_64-apple-darwin") {
         format!("x86_64-apple-macosx{macos_ver}")
     } else {
         format!("arm64-apple-macosx{macos_ver}")
     }
+}
+
+fn detect_sdk_version(target: &str) -> String {
+    let sdk_name = apple_platforms::triple::SDK::target_to_sdk(target)
+        .unwrap_or("macosx");
+
+    Command::new("xcrun")
+        .args(["--sdk", sdk_name, "--show-sdk-version"])
+        .output().ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|| "15.0".into())
 }
 
 fn find_swift_lib() -> Option<String> {
