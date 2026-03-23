@@ -420,8 +420,6 @@ videosubscriberaccount = { path = "../videosubscriberaccount", optional = true }
 visionkit           = { path = "../visionkit", optional = true }
 weatherkit          = { package = "rswift-weatherkit", path = "../weatherkit", optional = true }
 
-[build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
 
 [[example]]
 name = "check"

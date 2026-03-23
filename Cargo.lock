@@ -1209,7 +1209,6 @@ dependencies = [
  "storekit",
  "swift-charts",
  "swift-data",
- "swift-helper-build",
  "swift-runtime",
  "swift-runtime-sys",
  "swiftdata",
@@ -1366,7 +1365,6 @@ name = "rswift-avfaudio"
 version = "0.0.1"
 dependencies = [
  "avfaudio",
- "swift-helper-build",
 ]
 
 [[package]]
@@ -2366,7 +2364,6 @@ dependencies = [
 name = "rswift-videosubscriberaccount"
 version = "0.0.1"
 dependencies = [
- "swift-helper-build",
  "videosubscriberaccount",
 ]
 

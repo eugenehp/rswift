@@ -1,25 +1,178 @@
-//! Build-time helper: compile and link the Swift helper dylib.
+//! Build-time helper: compile Swift bridges and link them.
 //!
-//! Use in your crate's `build.rs`:
+//! ## Per-crate compilation (preferred)
+//!
+//! Each crate compiles only its own Swift bridge file:
+//!
+//! ```ignore
+//! // build.rs
+//! fn main() {
+//!     swift_helper_build::SwiftBridge::new("MyBridge")
+//!         .file("swift/bridge.swift")
+//!         .framework("AVFAudio")
+//!         .compile();
+//! }
+//! ```
+//!
+//! ## Legacy monolithic compilation
 //!
 //! ```ignore
 //! fn main() {
 //!     swift_helper_build::build_and_link();
 //! }
 //! ```
-//!
-//! This will:
-//! 1. Find the `swift_helper/` directory relative to the workspace root
-//! 2. Compile `libSwiftUIHelper.dylib` if any Swift source is newer than the dylib
-//! 3. Emit `cargo:rustc-link-lib=dylib=SwiftUIHelper` and search/rpath directives
-//!
-//! After this, all `@_cdecl` symbols from the Swift helper are available as
-//! normal `extern "C"` functions — no `dlopen`/`dlsym` needed.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// All Swift source files that make up the helper dylib.
+// ── Per-crate Swift bridge builder ──────────────────────────────────────────
+
+/// Compile a per-crate Swift bridge into a small dylib and link it.
+///
+/// ```ignore
+/// swift_helper_build::SwiftBridge::new("avfaudio_bridge")
+///     .file("swift/bridge.swift")
+///     .framework("AVFAudio")
+///     .compile();
+/// ```
+pub struct SwiftBridge {
+    name: String,
+    files: Vec<PathBuf>,
+    frameworks: Vec<String>,
+}
+
+impl SwiftBridge {
+    /// Create a new bridge builder. `name` becomes the dylib name:
+    /// `lib{name}.dylib`.
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            files: Vec::new(),
+            frameworks: Vec::new(),
+        }
+    }
+
+    /// Add a Swift source file (relative to `CARGO_MANIFEST_DIR`).
+    pub fn file(mut self, path: &str) -> Self {
+        let manifest = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+        self.files.push(manifest.join(path));
+        self
+    }
+
+    /// Link an Apple framework (e.g. `"AVFAudio"`, `"Security"`).
+    pub fn framework(mut self, name: &str) -> Self {
+        self.frameworks.push(name.to_string());
+        self
+    }
+
+    /// Compile the Swift bridge and emit all linker directives.
+    pub fn compile(self) {
+        let _manifest = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+        let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+        let dylib_name = format!("lib{}.dylib", self.name);
+        let dylib_path = out_dir.join(&dylib_name);
+
+        // Tell cargo to rerun if any source changes
+        for f in &self.files {
+            if f.exists() {
+                println!("cargo:rerun-if-changed={}", f.display());
+            }
+        }
+
+        // Check if rebuild needed
+        let needs_build = if dylib_path.exists() {
+            let dylib_mod = std::fs::metadata(&dylib_path)
+                .and_then(|m| m.modified()).ok();
+            self.files.iter().any(|f| {
+                let src_mod = std::fs::metadata(f)
+                    .and_then(|m| m.modified()).ok();
+                match (src_mod, dylib_mod) {
+                    (Some(s), Some(d)) => s > d,
+                    _ => true,
+                }
+            })
+        } else {
+            true
+        };
+
+        if needs_build {
+            self.do_compile(&dylib_path);
+        }
+
+        if !dylib_path.exists() {
+            println!("cargo:warning={dylib_name} not found after build");
+            return;
+        }
+
+        // Emit linker directives
+        println!("cargo:rustc-link-search=native={}", out_dir.display());
+        println!("cargo:rustc-link-lib=dylib={}", self.name);
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", out_dir.display());
+        println!("cargo:rustc-link-arg=-Wl,-rpath,/usr/lib/swift");
+
+        // Swift runtime
+        if let Some(sl) = find_swift_lib() {
+            println!("cargo:rustc-link-search=native={sl}");
+            println!("cargo:rustc-link-arg=-Wl,-rpath,{sl}");
+        }
+        println!("cargo:rustc-link-lib=dylib=swiftCore");
+
+        // Frameworks
+        for fw in &self.frameworks {
+            println!("cargo:rustc-link-lib=framework={fw}");
+        }
+    }
+
+    fn do_compile(&self, output: &Path) {
+        let sdk = match get_sdk_path() {
+            Some(s) => s,
+            None => {
+                println!("cargo:warning=No macOS SDK found");
+                return;
+            }
+        };
+
+        let swift_target = get_swift_target();
+        let install_name = format!("@rpath/lib{}.dylib", self.name);
+
+        let existing: Vec<&PathBuf> = self.files.iter().filter(|f| f.exists()).collect();
+        if existing.is_empty() {
+            println!("cargo:warning=No Swift source files found for {}", self.name);
+            return;
+        }
+
+        let mut cmd = Command::new("xcrun");
+        cmd.arg("swiftc")
+            .arg("-emit-library")
+            .args(existing.iter().map(|p| p.as_os_str()))
+            .arg("-o").arg(output)
+            .arg("-target").arg(&swift_target)
+            .arg("-sdk").arg(&sdk)
+            .arg("-Xlinker").arg("-install_name")
+            .arg("-Xlinker").arg(&install_name);
+
+        // Add framework link flags
+        for fw in &self.frameworks {
+            cmd.arg("-framework").arg(fw);
+        }
+
+        match cmd.output() {
+            Ok(out) if out.status.success() => {}
+            Ok(out) => {
+                let stderr = String::from_utf8_lossy(&out.stderr);
+                println!("cargo:warning=Swift compile failed for {}: {stderr}", self.name);
+            }
+            Err(e) => {
+                println!("cargo:warning=Failed to run swiftc: {e}");
+            }
+        }
+    }
+}
+
+// ── Legacy monolithic build ─────────────────────────────────────────────────
+
+/// All Swift source files that make up the monolithic helper dylib.
+/// Used by crates that haven't migrated to per-crate bridges yet.
 const SWIFT_SOURCES: &[&str] = &[
     "SwiftUIHelper.swift",
     "SnapshotHelper.swift",
@@ -30,36 +183,21 @@ const SWIFT_SOURCES: &[&str] = &[
     "FrameworkHelpers.swift",
     "ChartsHelper.swift",
     "FoundationModelsHelper.swift",
-    "FoundationBridge.swift",
-    "SecurityBridge.swift",
-    "CoreAnimationBridge.swift",
-    "AccelerateBridge.swift",
-    "CoreMediaBridge.swift",
-    "AudioToolboxBridge.swift",
-    "CoreLocationBridge.swift",
-    "UserNotificationsBridge.swift",
-    "ContactsBridge.swift",
-    "StoreKitBridge.swift",
-    "AppKitBridge.swift",
 ];
 
-/// Compile the Swift helper (if needed) and emit linker directives.
+/// Legacy: compile the monolithic Swift helper and link it.
 ///
-/// Call this from `build.rs`. It handles everything:
-/// - Finding the `swift_helper/` directory
-/// - Incremental compilation (skips if dylib is up to date)
-/// - Emitting `cargo:rustc-link-lib`, `cargo:rustc-link-search`, and rpath
+/// Prefer [`SwiftBridge`] for new crates.
 pub fn build_and_link() {
     let helper_dir = find_helper_dir();
 
     let Some(dir) = helper_dir else {
-        println!("cargo:warning=swift_helper/ directory not found — Swift symbols will be unresolved at link time");
+        println!("cargo:warning=swift_helper/ directory not found");
         return;
     };
 
     let dylib = dir.join("libSwiftUIHelper.dylib");
 
-    // Tell cargo to rerun if any Swift source changes
     for src in SWIFT_SOURCES {
         let path = dir.join(src);
         if path.exists() {
@@ -67,226 +205,131 @@ pub fn build_and_link() {
         }
     }
 
-    // Check if rebuild is needed
-    if needs_rebuild(&dir, &dylib) {
-        compile_helper(&dir);
+    if needs_rebuild_legacy(&dir, &dylib) {
+        compile_legacy(&dir);
     } else {
-        // Ensure install name is correct even for pre-existing dylibs
-        fix_install_name(&dylib);
+        fix_install_name(&dylib, "libSwiftUIHelper.dylib");
     }
 
     if !dylib.exists() {
-        println!("cargo:warning=libSwiftUIHelper.dylib not found after build attempt");
+        println!("cargo:warning=libSwiftUIHelper.dylib not found");
         return;
     }
 
-    // Emit linker directives
     let dir_str = dir.canonicalize().unwrap_or(dir.clone());
     println!("cargo:rustc-link-search=native={}", dir_str.display());
     println!("cargo:rustc-link-lib=dylib=SwiftUIHelper");
-    println!(
-        "cargo:rustc-link-arg=-Wl,-rpath,{}",
-        dir_str.display()
-    );
-    // Also add Swift runtime rpath
+    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", dir_str.display());
     println!("cargo:rustc-link-arg=-Wl,-rpath,/usr/lib/swift");
 
-    // Link Swift runtime and system frameworks needed by the helper
-    let swift_lib = find_swift_lib();
-    if let Some(ref sl) = swift_lib {
+    if let Some(sl) = find_swift_lib() {
         println!("cargo:rustc-link-search=native={sl}");
         println!("cargo:rustc-link-arg=-Wl,-rpath,{sl}");
     }
     println!("cargo:rustc-link-lib=dylib=swiftCore");
 }
 
-/// Like [`build_and_link`], but also links the specified Apple framework.
-///
-/// ```ignore
-/// swift_helper_build::build_and_link_with_framework("AVFAudio");
-/// ```
-pub fn build_and_link_with_framework(framework: &str) {
-    build_and_link();
-    println!("cargo:rustc-link-lib=framework={framework}");
-}
-
-// ── Internals ───────────────────────────────────────────────────────────────
+// ── Shared utilities ────────────────────────────────────────────────────────
 
 fn find_helper_dir() -> Option<PathBuf> {
     let manifest = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-
-    let candidates = [
-        manifest.join("../../swift_helper"),   // from crates/<name>/
-        manifest.join("../swift_helper"),       // one level up
-        manifest.join("swift_helper"),          // workspace root
-        PathBuf::from("swift_helper"),          // cwd
-    ];
-
-    for c in &candidates {
+    for c in [
+        manifest.join("../../swift_helper"),
+        manifest.join("../swift_helper"),
+        manifest.join("swift_helper"),
+    ] {
         if c.join("SwiftUIHelper.swift").exists() {
-            return Some(c.clone());
+            return Some(c);
         }
     }
     None
 }
 
-fn needs_rebuild(dir: &Path, dylib: &Path) -> bool {
-    if !dylib.exists() {
-        return true;
-    }
-
-    let dylib_modified = std::fs::metadata(dylib)
-        .and_then(|m| m.modified())
-        .ok();
-
+fn needs_rebuild_legacy(dir: &Path, dylib: &Path) -> bool {
+    if !dylib.exists() { return true; }
+    let dylib_mod = std::fs::metadata(dylib).and_then(|m| m.modified()).ok();
     SWIFT_SOURCES.iter().any(|src| {
-        let src_path = dir.join(src);
-        if !src_path.exists() {
-            return false;
-        }
-        let src_modified = std::fs::metadata(&src_path)
-            .and_then(|m| m.modified())
-            .ok();
-        match (src_modified, dylib_modified) {
-            (Some(s), Some(d)) => s > d,
-            _ => true,
-        }
+        let p = dir.join(src);
+        if !p.exists() { return false; }
+        let s = std::fs::metadata(&p).and_then(|m| m.modified()).ok();
+        matches!((s, dylib_mod), (Some(s), Some(d)) if s > d)
     })
 }
 
-fn compile_helper(dir: &Path) {
-    let sdk = Command::new("xcrun")
-        .args(["--sdk", "macosx", "--show-sdk-path"])
-        .output()
-        .ok()
-        .and_then(|o| String::from_utf8(o.stdout).ok())
-        .map(|s| s.trim().to_string());
-
-    let Some(sdk) = sdk else {
-        println!("cargo:warning=No macOS SDK found, skipping Swift helper compilation");
+fn compile_legacy(dir: &Path) {
+    let Some(sdk) = get_sdk_path() else {
+        println!("cargo:warning=No macOS SDK found");
         return;
     };
 
-    let macos_ver = detect_macos_version();
-    let target = std::env::var("TARGET").unwrap_or_default();
-    let swift_target = if target.contains("x86_64-apple-darwin") {
-        format!("x86_64-apple-macosx{macos_ver}")
-    } else {
-        format!("arm64-apple-macosx{macos_ver}")
-    };
+    let swift_target = get_swift_target();
+    let sources: Vec<PathBuf> = SWIFT_SOURCES.iter()
+        .map(|s| dir.join(s)).filter(|p| p.exists()).collect();
 
-    let source_paths: Vec<PathBuf> = SWIFT_SOURCES
-        .iter()
-        .map(|s| dir.join(s))
-        .filter(|p| p.exists())
-        .collect();
-
-    if source_paths.is_empty() {
-        println!("cargo:warning=No Swift source files found in {}", dir.display());
-        return;
-    }
-
+    if sources.is_empty() { return; }
     let output = dir.join("libSwiftUIHelper.dylib");
 
-    println!(
-        "cargo:warning=Compiling Swift helper ({} sources) → {}",
-        source_paths.len(),
-        output.display()
-    );
-
     let result = Command::new("xcrun")
-        .arg("swiftc")
-        .arg("-emit-library")
-        .args(source_paths.iter().map(|p| p.as_os_str()))
-        .arg("-o")
-        .arg(&output)
-        .arg("-target")
-        .arg(&swift_target)
-        .arg("-sdk")
-        .arg(&sdk)
-        // Set the install name so dyld uses @rpath to find the dylib
-        .arg("-Xlinker")
-        .arg("-install_name")
-        .arg("-Xlinker")
-        .arg("@rpath/libSwiftUIHelper.dylib")
+        .arg("swiftc").arg("-emit-library")
+        .args(sources.iter().map(|p| p.as_os_str()))
+        .arg("-o").arg(&output)
+        .arg("-target").arg(&swift_target)
+        .arg("-sdk").arg(&sdk)
+        .arg("-Xlinker").arg("-install_name")
+        .arg("-Xlinker").arg("@rpath/libSwiftUIHelper.dylib")
         .output();
 
     match result {
-        Ok(out) if out.status.success() => {
-            println!("cargo:warning=Swift helper compiled successfully");
-        }
+        Ok(out) if out.status.success() => {}
         Ok(out) => {
-            let stderr = String::from_utf8_lossy(&out.stderr);
-            println!("cargo:warning=Swift compilation failed: {stderr}");
+            println!("cargo:warning=Swift compile failed: {}", String::from_utf8_lossy(&out.stderr));
         }
-        Err(e) => {
-            println!("cargo:warning=Failed to run swiftc: {e}");
-        }
-    }
-
-    // Also fix install name on existing dylib if it wasn't built with @rpath
-    fix_install_name(&output);
-}
-
-/// Fix the install name of an existing dylib to use @rpath.
-fn fix_install_name(dylib: &Path) {
-    if !dylib.exists() {
-        return;
-    }
-
-    // Check current install name
-    let output = Command::new("otool")
-        .arg("-D")
-        .arg(dylib)
-        .output();
-
-    let needs_fix = match output {
-        Ok(out) => {
-            let stdout = String::from_utf8_lossy(&out.stdout);
-            // Second line is the install name
-            stdout.lines().nth(1)
-                .map(|name| !name.contains("@rpath"))
-                .unwrap_or(false)
-        }
-        Err(_) => false,
-    };
-
-    if needs_fix {
-        let _ = Command::new("install_name_tool")
-            .arg("-id")
-            .arg("@rpath/libSwiftUIHelper.dylib")
-            .arg(dylib)
-            .output();
+        Err(e) => println!("cargo:warning=swiftc failed: {e}"),
     }
 }
 
-fn detect_macos_version() -> String {
-    std::env::var("MACOS_VERSION").ok().unwrap_or_else(|| {
+fn fix_install_name(dylib: &Path, name: &str) {
+    if !dylib.exists() { return; }
+    if let Ok(out) = Command::new("otool").arg("-D").arg(dylib).output() {
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        if let Some(line) = stdout.lines().nth(1) {
+            if !line.contains("@rpath") {
+                let _ = Command::new("install_name_tool")
+                    .arg("-id").arg(format!("@rpath/{name}"))
+                    .arg(dylib).output();
+            }
+        }
+    }
+}
+
+fn get_sdk_path() -> Option<String> {
+    Command::new("xcrun")
+        .args(["--sdk", "macosx", "--show-sdk-path"])
+        .output().ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+}
+
+fn get_swift_target() -> String {
+    let macos_ver = std::env::var("MACOS_VERSION").ok().unwrap_or_else(|| {
         Command::new("xcrun")
             .args(["--sdk", "macosx", "--show-sdk-version"])
-            .output()
-            .ok()
+            .output().ok()
             .and_then(|o| String::from_utf8(o.stdout).ok())
             .map(|s| {
                 let v = s.trim();
-                if let Some(dot) = v.find('.') {
-                    format!("{}.0", &v[..dot])
-                } else {
-                    format!("{v}.0")
-                }
+                v.find('.').map(|d| format!("{}.0", &v[..d])).unwrap_or(format!("{v}.0"))
             })
-            .unwrap_or_else(|| "15.0".to_string())
-    })
+            .unwrap_or("15.0".into())
+    });
+    let target = std::env::var("TARGET").unwrap_or_default();
+    if target.contains("x86_64-apple-darwin") {
+        format!("x86_64-apple-macosx{macos_ver}")
+    } else {
+        format!("arm64-apple-macosx{macos_ver}")
+    }
 }
 
 fn find_swift_lib() -> Option<String> {
-    Command::new("xcrun")
-        .args(["--show-sdk-path", "--sdk", "macosx"])
-        .output()
-        .ok()
-        .and_then(|o| String::from_utf8(o.stdout).ok())
-        .map(|s| {
-            let sdk = s.trim();
-            format!("{sdk}/usr/lib/swift")
-        })
+    get_sdk_path().map(|sdk| format!("{sdk}/usr/lib/swift"))
 }

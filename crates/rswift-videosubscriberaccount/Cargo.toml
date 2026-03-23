@@ -12,8 +12,6 @@ name = "rswift_videosubscriberaccount"
 [dependencies]
 videosubscriberaccount = { path = "../videosubscriberaccount" }
 
-[build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
 
 [[example]]
 name = "check"

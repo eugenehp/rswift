@@ -12,8 +12,6 @@ name = "rswift_avfaudio"
 [dependencies]
 avfaudio = { path = "../avfaudio" }
 
-[build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
 
 [[example]]
 name = "check"
