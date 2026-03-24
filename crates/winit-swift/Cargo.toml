@@ -11,7 +11,7 @@ keywords = ["winit", "window", "metal", "visionos", "realitykit"]
 name = "winit_swift"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-sys-helpers = { version = "0.0.1", path = "../apple-sys-helpers" }
 raw-window-handle = "0.6"
 bitflags = "2"
 
