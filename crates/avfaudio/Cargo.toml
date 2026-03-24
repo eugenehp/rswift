@@ -11,7 +11,7 @@ keywords = ["audio", "avfaudio", "playback", "recording", "apple"]
 name = "avfaudio"
 
 [dependencies]
-apple-objc-sys = { path = "../apple-objc-sys" }
+apple-objc-sys = { version = "0.0.1", path = "../apple-objc-sys" }
 bitflags = "2"
 anyhow = "1"
 

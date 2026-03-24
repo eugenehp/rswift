@@ -18,7 +18,7 @@ visionos = []
 macos-26 = []
 
 [dependencies]
-realitykit-sys = { path = "../realitykit-sys" }
+realitykit-sys = { version = "0.1.0", path = "../realitykit-sys" }
 
 [lints]
 workspace = true

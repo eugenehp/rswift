@@ -38,10 +38,10 @@ charts = []
 all-frameworks = ["spatial", "translation", "widgetkit", "appintents", "activitykit", "charts"]
 
 [dependencies]
-swift-runtime-sys = { path = "../swift-runtime-sys" }
-swift-runtime = { path = "../swift-runtime" }
-swiftui-sys = { path = "../swiftui-sys" }
-swiftui-macros = { path = "../swiftui-macros" }
+swift-runtime-sys = { version = "0.0.4", path = "../swift-runtime-sys" }
+swift-runtime = { version = "0.0.1", path = "../swift-runtime" }
+swiftui-sys = { version = "0.0.1", path = "../swiftui-sys" }
+swiftui-macros = { version = "0.0.1", path = "../swiftui-macros" }
 libc = "0.2"
 
 [[example]]
