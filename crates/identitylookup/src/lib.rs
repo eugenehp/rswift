@@ -1,26 +1,11 @@
-//! Apple IdentityLookup — caller ID and message filtering from Rust.
-//!
-//! **Platform support:** macOS 12+, iOS 11+.
-//!
-//! ```ignore
-//! assert!(identitylookup::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple IdentityLookup — call/message filtering from Rust.
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
+use apple_objc_sys::*;
+pub fn is_available() -> bool { true }
 
-apple_sys_helpers::apple_framework!(c"identitylookup_available"; "macos", "ios");
+/// Check if call classification is available.
+pub fn classification_available() -> bool {
+    unsafe { !class!(b"ILClassificationRequest\0").is_null() }
+}
+

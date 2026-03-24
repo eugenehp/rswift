@@ -9,8 +9,7 @@ repository = "https://github.com/eugenehp/rswift"
 [lib]
 name = "cryptokit"
 
-[dependencies]
-apple-sys-helpers = { workspace = true }
+# Uses CommonCrypto (part of libSystem) — no extra deps needed
 
 [lints]
 workspace = true

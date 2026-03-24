@@ -17,6 +17,7 @@ members = [
 
     # ── Shared helpers ──
     "crates/apple-sys-helpers",
+    "crates/apple-objc-sys",
     "crates/apple-platforms",
     "crates/swift-helper-build",
 
@@ -440,11 +441,46 @@ members = [
 
 ]
 
+# ── Build profiles ────────────────────────────────────────────────────────────
+
+[profile.dev]
+# Faster incremental rebuilds; keep debug info for lldb.
+opt-level = 0
+debug = true
+incremental = true
+
+[profile.release]
+# Thin LTO: cross-crate inlining without the full-program codegen cost.
+# Strips debug symbols from the final binary.
+opt-level = 3
+lto = "thin"
+strip = "symbols"
+codegen-units = 1   # single CGU maximises inlining opportunities
+panic = "abort"     # smaller binary, no unwinding tables
+
+[profile.release-dbg]
+# Release performance with debug symbols — for profiling.
+inherits = "release"
+strip = "none"
+debug = true
+
+# ── Workspace lints ───────────────────────────────────────────────────────────
+
 [workspace.lints.rust]
-unexpected_cfgs = { level = "allow", check-cfg = [
+unexpected_cfgs     = { level = "allow", check-cfg = [
     'cfg(target_os, values("xros", "tvos", "watchos"))',
     'cfg(target_abi, values("sim"))',
 ] }
+# Warn on unsafe blocks that skip safety docs in public APIs.
+unsafe_op_in_unsafe_fn = "warn"
+
+[workspace.lints.clippy]
+# Transmute without a type annotation — common in dlsym-based bridges,
+# suppress at the call site with #[allow(...)] rather than workspace-wide.
+missing_transmute_annotations = "warn"
+# Catch redundant vec! allocations that could be stack arrays.
+# (Per-file overrides needed for the few cases where heap is required.)
+unnecessary_wraps             = "warn"
 
 [workspace.dependencies]
 apple-sys-helpers = { path = "crates/apple-sys-helpers" }

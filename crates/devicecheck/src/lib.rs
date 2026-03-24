@@ -1,28 +1,31 @@
-//! Apple DeviceCheck — device attestation from Rust.
+//! Apple DeviceCheck — device validation from Rust.
 //!
-//! **Platform support:** macOS 10.15+, iOS 11+, tvOS 11+, visionOS 1+, watchOS 9+.
-//!
-//! Wraps DeviceCheck and App Attest for device-level fraud prevention.
+//! **Platform:** macOS 10.15+, iOS 11+, tvOS 11+.
 //!
 //! ```ignore
-//! assert!(devicecheck::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
+//! if devicecheck::is_supported() {
+//!     println!("DeviceCheck available on this device");
 //! }
 //! ```
-//!
+
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"devicecheck_available");
+use apple_objc_sys::*;
+
+pub fn is_available() -> bool { true }
+
+/// Whether DeviceCheck is supported on this device.
+pub fn is_supported() -> bool {
+    unsafe {
+        let dev: Id = msg_send![class!(b"DCDevice\0"), currentDevice];
+        msg_send_t![bool; dev, isSupported]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_supported() { let _ = is_supported(); }
+}

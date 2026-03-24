@@ -1,208 +1,330 @@
-//! Apple AVFAudio — audio playback, recording, and processing from Rust.
+#![allow(unsafe_op_in_unsafe_fn, dead_code)]
+//! Apple AVFAudio — complete Rust bindings for audio playback, recording,
+//! session management, and the audio engine graph.
 //!
-//! **Platform support:** macOS 10.15+, iOS 13+, tvOS 13+, visionOS 1+, watchOS 7+.
-//!
-//! Wraps AVFAudio for audio engine, players, recorders, and audio sessions.
-//! The Swift helper is compiled and linked automatically via `build.rs` —
-//! no manual `dlopen` or `load_helper()` needed.
+//! Pure Rust ObjC dispatch — no `.m` thunks, no `cc` build step.
 //!
 //! # Quick start
 //!
-//! ```ignore
-//! assert!(avfaudio::is_available());
+//! ```rust,ignore
+//! use avfaudio::prelude::*;
 //!
-//! // Create an audio engine and query output format
-//! let engine = avfaudio::AudioEngine::new();
-//! let (sample_rate, channels) = engine.output_format();
-//! println!("Output: {sample_rate} Hz, {channels} ch");
+//! // ── Configure the audio session ─────────────────────────
+//! let session = AudioSession::shared();
+//! session.configure()
+//!     .category(Category::Playback)
+//!     .mode(Mode::Default)
+//!     .options(CategoryOptions::MIX_WITH_OTHERS)
+//!     .activate()?;
 //!
-//! // Play an audio file
-//! if let Some(player) = avfaudio::AudioPlayer::new("/path/to/sound.wav") {
-//!     player.set_volume(0.8);
-//!     player.play();
-//!     println!("Duration: {:.1}s", player.duration());
-//! }
+//! // ── Play a file ─────────────────────────────────────────
+//! let player = AudioPlayer::open("song.mp3")?;
+//! player.play();
+//! println!("{}", player);            // "▶ song.mp3 — 3:42 @ 100%"
+//!
+//! // ── Engine graph ────────────────────────────────────────
+//! let engine = AudioEngine::new();
+//! let player_node = AudioPlayerNode::new();
+//! engine.attach(&player_node);
+//! engine.connect(&player_node, &engine.main_mixer_node(), None);
+//! engine.start()?;
+//!
+//! // ── Text-to-speech ──────────────────────────────────────
+//! avfaudio::speak("Hello from Rust!");
 //! ```
-
 //!
-//! ## Citation
+//! # Modules
 //!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
+//! | Module | Apple Class(es) |
+//! |--------|-----------------|
+//! | [`session`] | `AVAudioSession` — category, mode, activation, routing |
+//! | [`engine`] | `AVAudioEngine` — real-time audio graph |
+//! | [`player`] | `AVAudioPlayer` — simple file playback |
+//! | [`player_node`] | `AVAudioPlayerNode` — scheduled buffer/file playback |
+//! | [`recorder`] | `AVAudioRecorder` — audio recording |
+//! | [`format`] | `AVAudioFormat` — audio format description |
+//! | [`file`] | `AVAudioFile` — reading/writing audio files |
+//! | [`buffer`] | `AVAudioPCMBuffer`, `AVAudioCompressedBuffer` |
+//! | [`time`] | `AVAudioTime` — host/sample time |
+//! | [`node`] | `AVAudioNode` — base node |
+//! | [`mixer_node`] | `AVAudioMixerNode` — mixing |
+//! | [`io_node`] | `AVAudioInputNode`, `AVAudioOutputNode` |
+//! | [`channel_layout`] | `AVAudioChannelLayout` |
+//! | [`connection_point`] | `AVAudioConnectionPoint` |
+//! | [`converter`] | `AVAudioConverter` |
+//! | [`environment_node`] | `AVAudioEnvironmentNode` |
+//! | [`sink_node`] | `AVAudioSinkNode` |
+//! | [`source_node`] | `AVAudioSourceNode` |
+//! | [`unit`] | `AVAudioUnit` and effect subclasses |
+//! | [`sequencer`] | `AVAudioSequencer` |
+//! | [`midi_player`] | `AVMIDIPlayer` |
+//! | [`speech`] | `AVSpeechSynthesizer`, `AVSpeechUtterance` |
+//! | [`application`] | `AVAudioApplication` |
+//! | [`ffi`] | Raw ObjC selector constants |
 //!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-use core::ffi::c_void;
+use apple_objc_sys::*;
+use anyhow::anyhow;
+#[allow(unused_imports)] use anyhow::{bail, ensure, Context as _};
 
-apple_sys_helpers::apple_framework!(c"avfaudio_available");
+pub mod ffi;
+pub mod error;
+pub mod prelude;
 
-// ── FFI declarations (linked via build.rs → libSwiftUIHelper.dylib) ─────────
+// ── Sub-modules ─────────────────────────────────────────────────────────────
+pub mod session;
+pub mod engine;
+pub mod player;
+pub mod player_node;
+pub mod recorder;
+pub mod format;
+pub mod file;
+pub mod buffer;
+pub mod time;
+pub mod node;
+pub mod mixer_node;
+pub mod io_node;
+pub mod channel_layout;
+pub mod connection_point;
+pub mod converter;
+pub mod environment_node;
+pub mod sink_node;
+pub mod source_node;
+pub mod unit;
+pub mod sequencer;
+pub mod midi_player;
+pub mod speech;
+pub mod application;
+pub mod settings;
+pub mod types;
 
-unsafe extern "C" {
-    fn avfaudio_engine_create() -> *mut c_void;
-    fn avfaudio_engine_start(ptr: *mut c_void) -> bool;
-    fn avfaudio_engine_stop(ptr: *mut c_void);
-    fn avfaudio_engine_is_running(ptr: *mut c_void) -> bool;
-    fn avfaudio_engine_release(ptr: *mut c_void);
-    fn avfaudio_engine_output_format(
-        ptr: *mut c_void,
-        sample_rate: *mut f64,
-        channels: *mut u32,
-    );
+// ── Re-exports ──────────────────────────────────────────────────────────────
+pub use error::AudioResult;
+pub use session::{AudioSession, Category, CategoryOptions, Mode};
+pub use engine::AudioEngine;
+pub use player::AudioPlayer;
+pub use player_node::AudioPlayerNode;
+pub use recorder::AudioRecorder;
+pub use format::{AudioFormat, AudioCommonFormat};
+pub use file::AudioFile;
+pub use buffer::{AudioPCMBuffer, AudioCompressedBuffer};
+pub use time::AudioTime;
+pub use node::AudioNode;
+pub use mixer_node::AudioMixerNode;
+pub use io_node::{AudioInputNode, AudioOutputNode};
+pub use channel_layout::AudioChannelLayout;
+pub use connection_point::AudioConnectionPoint;
+pub use converter::AudioConverter;
+pub use environment_node::AudioEnvironmentNode;
+pub use sink_node::AudioSinkNode;
+pub use source_node::AudioSourceNode;
+pub use unit::*;
+pub use sequencer::AudioSequencer;
+pub use midi_player::MIDIPlayer;
+pub use speech::*;
+pub use application::AudioApplication;
+pub use types::*;
 
-    fn avfaudio_player_create(path: *const u8, len: usize) -> *mut c_void;
-    fn avfaudio_player_play(ptr: *mut c_void) -> bool;
-    fn avfaudio_player_pause(ptr: *mut c_void);
-    fn avfaudio_player_stop(ptr: *mut c_void);
-    fn avfaudio_player_is_playing(ptr: *mut c_void) -> bool;
-    fn avfaudio_player_duration(ptr: *mut c_void) -> f64;
-    fn avfaudio_player_current_time(ptr: *mut c_void) -> f64;
-    fn avfaudio_player_set_current_time(ptr: *mut c_void, time: f64);
-    fn avfaudio_player_set_volume(ptr: *mut c_void, volume: f32);
-    fn avfaudio_player_volume(ptr: *mut c_void) -> f32;
-    fn avfaudio_player_set_loops(ptr: *mut c_void, loops: isize);
-    fn avfaudio_player_release(ptr: *mut c_void);
-}
+// ═══════════════════════════════════════════════════════════════════════════
+//  Top-level convenience functions
+// ═══════════════════════════════════════════════════════════════════════════
 
-// ── AudioEngine ─────────────────────────────────────────────────────────────
+/// Returns `true` — AVFAudio is always available on Apple platforms.
+pub fn is_available() -> bool { true }
 
-/// An audio engine for real-time audio processing.
+/// Speak the given text using the default voice.
 ///
-/// Wraps `AVAudioEngine`. Create, start, stop, and query the output format.
-pub struct AudioEngine {
-    handle: *mut c_void,
-}
-
-impl AudioEngine {
-    /// Create a new audio engine.
-    pub fn new() -> Self {
-        let h = unsafe { avfaudio_engine_create() };
-        assert!(!h.is_null(), "Failed to create AVAudioEngine");
-        Self { handle: h }
-    }
-
-    /// Start the audio engine. Returns `true` on success.
-    pub fn start(&self) -> bool {
-        unsafe { avfaudio_engine_start(self.handle) }
-    }
-
-    /// Stop the audio engine.
-    pub fn stop(&self) {
-        unsafe { avfaudio_engine_stop(self.handle) }
-    }
-
-    /// Whether the engine is currently running.
-    pub fn is_running(&self) -> bool {
-        unsafe { avfaudio_engine_is_running(self.handle) }
-    }
-
-    /// Query the output node's format: `(sample_rate_hz, channel_count)`.
-    pub fn output_format(&self) -> (f64, u32) {
-        let mut sr = 0.0f64;
-        let mut ch = 0u32;
-        unsafe { avfaudio_engine_output_format(self.handle, &mut sr, &mut ch) }
-        (sr, ch)
+/// ```rust,ignore
+/// avfaudio::speak("Turn left in 500 meters");
+/// ```
+pub fn speak(text: &str) {
+    let synth = SpeechSynthesizer::new();
+    let utt = SpeechUtterance::new(text);
+    synth.speak(&utt);
+    // Synthesizer must stay alive while speaking; spin briefly.
+    while synth.is_speaking() {
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
 }
 
-impl Default for AudioEngine {
-    fn default() -> Self {
-        Self::new()
-    }
+/// Obtain the shared audio session (shorthand for `AudioSession::shared()`).
+pub fn audio_session() -> AudioSession { AudioSession::shared() }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Internal ObjC dispatch helpers
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Retain an ObjC object (increment refcount). Returns the same pointer.
+#[inline]
+pub(crate) unsafe fn retain(obj: Id) -> Id {
+    if !obj.is_null() { CFRetain(obj as CFTypeRef); }
+    obj
 }
 
-impl Drop for AudioEngine {
-    fn drop(&mut self) {
-        unsafe { avfaudio_engine_release(self.handle) }
-    }
+/// Release an ObjC object (decrement refcount).
+#[inline]
+pub(crate) unsafe fn release(obj: Id) {
+    if !obj.is_null() { CFRelease(obj as CFTypeRef); }
 }
 
-// ── AudioPlayer ─────────────────────────────────────────────────────────────
-
-/// A simple audio file player.
-///
-/// Wraps `AVAudioPlayer`. Load a file, control playback, volume, and looping.
-///
-/// Supported formats: WAV, MP3, AAC, AIFF, CAF, M4A.
-pub struct AudioPlayer {
-    handle: *mut c_void,
+#[inline]
+pub(crate) unsafe fn msg_send_f64(obj: Id, sel_name: &[u8]) -> f64 {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> f64 =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
 }
 
-impl AudioPlayer {
-    /// Create a player for the audio file at `path`.
-    ///
-    /// Returns `None` if the file cannot be opened.
-    pub fn new(path: &str) -> Option<Self> {
-        let h = unsafe { avfaudio_player_create(path.as_ptr(), path.len()) };
-        if h.is_null() { None } else { Some(Self { handle: h }) }
-    }
-
-    /// Start playback. Returns `true` on success.
-    pub fn play(&self) -> bool {
-        unsafe { avfaudio_player_play(self.handle) }
-    }
-
-    /// Pause playback.
-    pub fn pause(&self) {
-        unsafe { avfaudio_player_pause(self.handle) }
-    }
-
-    /// Stop playback and reset to the beginning.
-    pub fn stop(&self) {
-        unsafe { avfaudio_player_stop(self.handle) }
-    }
-
-    /// Whether audio is currently playing.
-    pub fn is_playing(&self) -> bool {
-        unsafe { avfaudio_player_is_playing(self.handle) }
-    }
-
-    /// Total duration in seconds.
-    pub fn duration(&self) -> f64 {
-        unsafe { avfaudio_player_duration(self.handle) }
-    }
-
-    /// Current playback position in seconds.
-    pub fn current_time(&self) -> f64 {
-        unsafe { avfaudio_player_current_time(self.handle) }
-    }
-
-    /// Seek to a position in seconds.
-    pub fn set_current_time(&self, time: f64) {
-        unsafe { avfaudio_player_set_current_time(self.handle, time) }
-    }
-
-    /// Set playback volume (0.0 – 1.0).
-    pub fn set_volume(&self, volume: f32) {
-        unsafe { avfaudio_player_set_volume(self.handle, volume) }
-    }
-
-    /// Current playback volume (0.0 – 1.0).
-    pub fn volume(&self) -> f32 {
-        unsafe { avfaudio_player_volume(self.handle) }
-    }
-
-    /// Set the number of loops.
-    ///
-    /// - `0` = play once (default)
-    /// - `-1` = loop forever
-    /// - `N` = play N + 1 times total
-    pub fn set_loops(&self, loops: isize) {
-        unsafe { avfaudio_player_set_loops(self.handle, loops) }
-    }
+#[inline]
+pub(crate) unsafe fn msg_send_f32(obj: Id, sel_name: &[u8]) -> f32 {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> f32 =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
 }
 
-impl Drop for AudioPlayer {
-    fn drop(&mut self) {
-        unsafe { avfaudio_player_release(self.handle) }
-    }
+#[inline]
+pub(crate) unsafe fn msg_send_isize(obj: Id, sel_name: &[u8]) -> isize {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> isize =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
 }
+
+#[inline]
+pub(crate) unsafe fn msg_send_usize(obj: Id, sel_name: &[u8]) -> usize {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> usize =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
+}
+
+#[inline]
+pub(crate) unsafe fn msg_send_bool(obj: Id, sel_name: &[u8]) -> bool {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> bool =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
+}
+
+#[inline]
+pub(crate) unsafe fn msg_send_id(obj: Id, sel_name: &[u8]) -> Id {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> Id =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel)
+}
+
+#[inline]
+pub(crate) unsafe fn msg_send_void(obj: Id, sel_name: &[u8]) {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel);
+}
+
+#[inline]
+pub(crate) unsafe fn msg_send_void_id(obj: Id, sel_name: &[u8], arg: Id) {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel, Id) =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel, arg);
+}
+
+#[inline]
+pub(crate) unsafe fn msg_send_set_bool(obj: Id, sel_name: &[u8], val: bool) {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel, bool) =
+        core::mem::transmute(objc_msgSend as *const ());
+    f(obj, sel, val);
+}
+
+/// DRY: call `[obj sel:arg error:&err]` → `anyhow::Result<()>`.
+macro_rules! objc_try {
+    // (obj, "sel:error:", arg_id)
+    ($obj:expr, $sel:expr, $arg:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            apple_objc_sys::Id, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $arg, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // (obj, "sel:val:error:", bool_val)
+    (bool $obj:expr, $sel:expr, $val:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            bool, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $val, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // (obj, "sel:val:error:", f64_val)
+    (f64 $obj:expr, $sel:expr, $val:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            f64, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $val, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // (obj, "sel:val:error:", f32_val)
+    (f32 $obj:expr, $sel:expr, $val:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            f32, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $val, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // (obj, "sel:val:error:", isize_val)
+    (isize $obj:expr, $sel:expr, $val:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            isize, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $val, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // (obj, "sel:val:error:", usize_val)
+    (usize $obj:expr, $sel:expr, $val:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel,
+            usize, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, $val, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+
+    // no-arg: (obj, "startAndReturnError:")
+    (noarg $obj:expr, $sel:expr) => {{
+        let sel = apple_objc_sys::sel_registerName($sel.as_ptr());
+        let mut err: apple_objc_sys::Id = apple_objc_sys::NIL;
+        let f: unsafe extern "C" fn(
+            apple_objc_sys::Id, apple_objc_sys::Sel, *mut apple_objc_sys::Id,
+        ) -> bool = core::mem::transmute(apple_objc_sys::objc_msgSend as *const ());
+        let ok = f($obj, sel, &mut err);
+        if ok { Ok(()) } else { Err($crate::anyhow!("ObjC call failed")) }
+    }};
+}
+
+pub(crate) use objc_try;

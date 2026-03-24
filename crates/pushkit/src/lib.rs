@@ -1,28 +1,61 @@
-//! Apple PushKit — VoIP and complication push notifications from Rust.
+//! Apple PushKit — VoIP push notifications from Rust.
 //!
-//! **Platform support:** macOS 10.15+, iOS 8+, visionOS 1+, watchOS 6+.
-//!
-//! Wraps PushKit for receiving VoIP pushes and complication updates.
+//! **Platform:** macOS 10.15+, iOS 8+.
 //!
 //! ```ignore
-//! assert!(pushkit::is_available());
+//! let types = vec!["PKPushTypeVoIP"];
+//! // In real use, create a PKPushRegistry with delegate for push handling
 //! ```
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"pushkit_available"; "macos", "ios", "xros", "watchos");
+use apple_objc_sys::*;
+
+/// Framework FFI constants.
+pub mod ffi;
+
+pub fn is_available() -> bool {
+    unsafe { !class!(b"PKPushRegistry\0").is_null() }
+}
+
+/// Push type constants.
+pub mod push_type {
+    pub const VOIP: &str = "PKPushTypeVoIP";
+    pub const COMPLICATION: &str = "PKPushTypeComplication";
+    pub const FILE_PROVIDER: &str = "PKPushTypeFileProvider";
+}
+
+/// Wraps `PKPushRegistry`.
+pub struct PushRegistry { inner: Id }
+
+impl PushRegistry {
+    /// Create a registry on the main queue.
+    pub fn new() -> Self {
+        unsafe {
+            extern "C" { fn dispatch_get_main_queue() -> Id; }
+            let r: Id = msg_send![class!(b"PKPushRegistry\0"), alloc];
+            let r = msg_send![r, initWithQueue: dispatch_get_main_queue()];
+            Self { inner: r }
+        }
+    }
+
+    /// Set desired push types (e.g. `&["PKPushTypeVoIP"]`).
+    pub fn set_desired_push_types(&self, types: &[&str]) {
+        unsafe {
+            let ns_strs: Vec<Id> = types.iter().map(|t| nsstring(t)).collect();
+            let sel = sel_registerName(b"arrayWithObjects:count:\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel, *const Id, usize) -> Id =
+                core::mem::transmute(objc_msgSend as *const ());
+            let arr = f(class!(b"NSArray\0") as Id, sel, ns_strs.as_ptr(), ns_strs.len());
+            let set: Id = msg_send![class!(b"NSSet\0"), setWithArray: arr];
+            msg_send_void![self.inner, setDesiredPushTypes: set];
+            for s in &ns_strs { CFRelease(*s as CFTypeRef); }
+        }
+    }
+
+    pub fn as_ptr(&self) -> Id { self.inner }
+}
+
+impl Default for PushRegistry { fn default() -> Self { Self::new() } }
+impl Drop for PushRegistry { fn drop(&mut self) { unsafe { CFRelease(self.inner as CFTypeRef); } } }

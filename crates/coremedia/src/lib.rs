@@ -2,6 +2,8 @@
 //!
 //! **Platform support:** macOS 10.7+, iOS 4+, tvOS 9+, visionOS 1+.
 //!
+//! Links CoreMedia directly — no Swift bridge needed.
+//!
 //! # Quick start
 //!
 //! ```ignore
@@ -16,17 +18,36 @@
 //!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"coremedia_available");
+/// CoreMedia is always available on Apple platforms.
+/// Framework FFI constants.
+pub mod ffi;
 
+pub fn is_available() -> bool { true }
+
+
+// ── Raw CoreMedia C symbols ─────────────────────────────────────────────────
+
+/// Raw CMTime as the framework defines it.
+#[repr(C)]
+#[derive(Clone, Copy)]
+struct RawCMTime {
+    value: i64,
+    timescale: i32,
+    flags: u32,
+    epoch: i64,
+}
+
+const K_CMTIME_VALID: u32 = 1;
+const K_CMTIME_INDEFINITE: u32 = 16;
+
+#[allow(non_snake_case)]
 unsafe extern "C" {
-    fn coremedia_time_make(v: i64, ts: i32, ov: *mut i64, ots: *mut i32);
-    fn coremedia_time_make_with_seconds(s: f64, ts: i32, ov: *mut i64, ots: *mut i32);
-    fn coremedia_time_get_seconds(v: i64, ts: i32) -> f64;
-    fn coremedia_time_add(v1: i64, ts1: i32, v2: i64, ts2: i32, ov: *mut i64, ots: *mut i32);
-    fn coremedia_time_subtract(v1: i64, ts1: i32, v2: i64, ts2: i32, ov: *mut i64, ots: *mut i32);
-    fn coremedia_time_compare(v1: i64, ts1: i32, v2: i64, ts2: i32) -> i32;
-    fn coremedia_time_is_valid(v: i64, ts: i32) -> bool;
-    fn coremedia_time_is_indefinite(v: i64, ts: i32) -> bool;
+    fn CMTimeMake(value: i64, timescale: i32) -> RawCMTime;
+    fn CMTimeMakeWithSeconds(seconds: f64, preferredTimescale: i32) -> RawCMTime;
+    fn CMTimeGetSeconds(time: RawCMTime) -> f64;
+    fn CMTimeAdd(lhs: RawCMTime, rhs: RawCMTime) -> RawCMTime;
+    fn CMTimeSubtract(lhs: RawCMTime, rhs: RawCMTime) -> RawCMTime;
+    fn CMTimeCompare(time1: RawCMTime, time2: RawCMTime) -> i32;
 }
 
 /// A time value with rational timescale (wraps `CMTime`).
@@ -34,16 +55,21 @@ unsafe extern "C" {
 pub struct CMTime {
     pub value: i64,
     pub timescale: i32,
+    flags: u32,
+    epoch: i64,
 }
 
 impl CMTime {
+    fn from_raw(r: RawCMTime) -> Self {
+        Self { value: r.value, timescale: r.timescale, flags: r.flags, epoch: r.epoch }
+    }
+    fn to_raw(&self) -> RawCMTime {
+        RawCMTime { value: self.value, timescale: self.timescale, flags: self.flags, epoch: self.epoch }
+    }
+
     /// Create a time from a value and timescale.
-    /// E.g. `CMTime::new(3000, 600)` = 5 seconds.
     pub fn new(value: i64, timescale: i32) -> Self {
-        let mut v = 0i64;
-        let mut ts = 0i32;
-        unsafe { coremedia_time_make(value, timescale, &mut v, &mut ts) }
-        Self { value: v, timescale: ts }
+        Self::from_raw(unsafe { CMTimeMake(value, timescale) })
     }
 
     /// Create a time from seconds with a preferred timescale.
@@ -53,53 +79,44 @@ impl CMTime {
 
     /// Create a time from seconds with a specific timescale.
     pub fn from_seconds_with_timescale(seconds: f64, timescale: i32) -> Self {
-        let mut v = 0i64;
-        let mut ts = 0i32;
-        unsafe { coremedia_time_make_with_seconds(seconds, timescale, &mut v, &mut ts) }
-        Self { value: v, timescale: ts }
+        Self::from_raw(unsafe { CMTimeMakeWithSeconds(seconds, timescale) })
     }
 
     /// Convert to seconds.
     pub fn seconds(&self) -> f64 {
-        unsafe { coremedia_time_get_seconds(self.value, self.timescale) }
+        unsafe { CMTimeGetSeconds(self.to_raw()) }
     }
 
     /// Add two times.
     pub fn add(&self, other: &CMTime) -> CMTime {
-        let mut v = 0i64;
-        let mut ts = 0i32;
-        unsafe { coremedia_time_add(self.value, self.timescale, other.value, other.timescale, &mut v, &mut ts) }
-        CMTime { value: v, timescale: ts }
+        Self::from_raw(unsafe { CMTimeAdd(self.to_raw(), other.to_raw()) })
     }
 
     /// Subtract another time.
     pub fn subtract(&self, other: &CMTime) -> CMTime {
-        let mut v = 0i64;
-        let mut ts = 0i32;
-        unsafe { coremedia_time_subtract(self.value, self.timescale, other.value, other.timescale, &mut v, &mut ts) }
-        CMTime { value: v, timescale: ts }
+        Self::from_raw(unsafe { CMTimeSubtract(self.to_raw(), other.to_raw()) })
     }
 
     /// Whether this time is valid.
     pub fn is_valid(&self) -> bool {
-        unsafe { coremedia_time_is_valid(self.value, self.timescale) }
+        self.flags & K_CMTIME_VALID != 0
     }
 
     /// Whether this time is indefinite (e.g. live stream).
     pub fn is_indefinite(&self) -> bool {
-        unsafe { coremedia_time_is_indefinite(self.value, self.timescale) }
+        self.flags & K_CMTIME_INDEFINITE != 0
     }
 }
 
 impl PartialEq for CMTime {
     fn eq(&self, other: &Self) -> bool {
-        unsafe { coremedia_time_compare(self.value, self.timescale, other.value, other.timescale) == 0 }
+        unsafe { CMTimeCompare(self.to_raw(), other.to_raw()) == 0 }
     }
 }
 
 impl PartialOrd for CMTime {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        let c = unsafe { coremedia_time_compare(self.value, self.timescale, other.value, other.timescale) };
+        let c = unsafe { CMTimeCompare(self.to_raw(), other.to_raw()) };
         Some(c.cmp(&0))
     }
 }

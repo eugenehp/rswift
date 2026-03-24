@@ -311,7 +311,7 @@ createml            = { path = "../createml", optional = true }
 vision              = { package = "rswift-vision", path = "../vision", optional = true }
 naturallanguage     = { path = "../naturallanguage", optional = true }
 foundation-models   = { path = "../foundation-models", optional = true }
-translation         = { package = "rswift-translation", path = "../translation", optional = true }
+translation         = { package = "translation", path = "../translation", optional = true }
 accelerate          = { package = "rswift-accelerate", path = "../accelerate", optional = true }
 
 # Graphics & Animation

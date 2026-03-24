@@ -1,8 +1,10 @@
 use std::{
-    fs,
     path::{Path, PathBuf},
     process::Command,
 };
+
+#[cfg(feature = "generate-bindings")]
+use std::fs;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -12,6 +14,7 @@ const ENV_SWIFT_RUNTIME: &str = "SWIFT_RUNTIME";
 const ENV_GENERATE_BINDINGS: &str = "SWIFT_RUNTIME_SYS_GENERATE_BINDINGS";
 
 /// Headers to generate bindgen bindings from (relative to crate root).
+#[cfg(feature = "generate-bindings")]
 const RUNTIME_HEADERS: &[&str] = &[
     "../../swift/include/swift/Runtime/Atomic.h",
     "../../swift/include/swift/Runtime/Backtrace.h",
@@ -162,16 +165,19 @@ fn main() {
     }
 
     // Optional: regenerate bindings from Swift headers
+    // Requires: cargo build -p swift-runtime-sys --features generate-bindings
+    //           SWIFT_RUNTIME_SYS_GENERATE_BINDINGS=1
+    #[cfg(feature = "generate-bindings")]
     if std::env::var_os(ENV_GENERATE_BINDINGS).is_some() {
         generate_all_bindings();
     }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Bindgen code generation (only when SWIFT_RUNTIME_SYS_GENERATE_BINDINGS is set)
+// Bindgen code generation (only compiled with `generate-bindings` feature)
 // ═══════════════════════════════════════════════════════════════════════════
 
-#[allow(dead_code)]
+#[cfg(feature = "generate-bindings")]
 fn generate_all_bindings() {
     let mut mod_lines = Vec::new();
 
@@ -190,7 +196,7 @@ fn generate_all_bindings() {
     fs::write(&lib_rs, mod_lines.join("\n")).expect("failed to write lib.rs");
 }
 
-#[allow(dead_code)]
+#[cfg(feature = "generate-bindings")]
 fn generate_bindings_for(header: &str, out_filename: &str) {
     let out_path = PathBuf::from("src").join(out_filename);
     let _ = fs::remove_file(&out_path);

@@ -1,7 +1,7 @@
 [package]
 name = "rswift-realitykit-sys"
 description = "Alias for realitykit-sys — re-exports the realitykit-sys crate under the rswift- namespace"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"

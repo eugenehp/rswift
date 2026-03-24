@@ -10,7 +10,9 @@ repository = "https://github.com/eugenehp/rswift"
 name = "weatherkit"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }
 
 [lints]
 workspace = true

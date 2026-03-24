@@ -372,6 +372,7 @@ pub struct Fns {
 }
 
 /// Load the Swift bridge dylib and resolve all symbols.
+#[allow(clippy::missing_transmute_annotations)]
 pub fn load(path: &str) -> Result<Fns, String> {
     unsafe {
         // Load SwiftUI framework

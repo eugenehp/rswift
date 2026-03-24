@@ -1,26 +1,5 @@
-//! Apple DeviceDiscoveryExtension — streaming device discovery from Rust.
-//!
-//! **Platform support:** macOS 14+, iOS 16+, tvOS 16+.
-//!
-//! ```ignore
-//! assert!(devicediscoveryextension::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple DeviceDiscoveryExtension from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"devicediscoveryextension_available"; "macos", "ios", "tvos");
+unsafe extern "C" { fn devicediscoveryextension_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { devicediscoveryextension_swift_avail() } }

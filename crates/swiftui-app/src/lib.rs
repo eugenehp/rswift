@@ -1,3 +1,4 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //! # swiftui-app — Declarative SwiftUI apps from Rust
 //!
 //! Build native Apple apps with Metal rendering, configured entirely in `build.rs`.

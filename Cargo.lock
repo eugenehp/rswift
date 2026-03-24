@@ -6,42 +6,46 @@ version = 4
 name = "accessorysetupkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "accessorytransportextension"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "activitykit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "adattributionkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "adservices"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "adsupport"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -57,7 +61,8 @@ dependencies = [
 name = "alarmkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -120,8 +125,13 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 name = "appintents"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
+
+[[package]]
+name = "apple-objc-sys"
+version = "0.0.1"
 
 [[package]]
 name = "apple-platforms"
@@ -138,78 +148,85 @@ version = "0.0.1"
 name = "appmigrationkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "apptrackingtransparency"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "arkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "assignables"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "authenticationservices"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "automateddeviceenrollment"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "automaticassessmentconfiguration"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "avfaudio"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "anyhow",
+ "apple-objc-sys",
+ "bitflags",
 ]
 
 [[package]]
 name = "avkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "backgroundassets"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "backgroundtasks"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -241,41 +258,49 @@ checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 name = "browserenginecore"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "browserenginekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "browserkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
-
-[[package]]
-name = "bytes"
-version = "1.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 
 [[package]]
 name = "callkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "carkey"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
+]
+
+[[package]]
+name = "cc"
+version = "1.2.57"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a0dd1ca384932ff3641c8718a02769f1698e7563dc6974ffd03346116310423"
+dependencies = [
+ "find-msvc-tools",
+ "shlex",
 ]
 
 [[package]]
@@ -297,7 +322,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "cinematic"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -355,7 +380,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 name = "cloudkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -368,149 +393,147 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 name = "compositorservices"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "contactprovider"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "contacts"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "coredata"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "coregraphics"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
-]
 
 [[package]]
 name = "corehaptics"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "corehid"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "coreimage"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "corelocation"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "corenfc"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "corespotlight"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "coretext"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
-]
 
 [[package]]
 name = "coretransferable"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "createml"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "cryptokit"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
-]
 
 [[package]]
 name = "cryptotokenkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "datadetection"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "declaredagerange"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "deviceactivity"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "devicediscoveryextension"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "dockkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -523,46 +546,45 @@ checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 name = "energykit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
-]
-
-[[package]]
-name = "errno"
-version = "0.3.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
-dependencies = [
- "libc",
- "windows-sys",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "extensionkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "familycontrols"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "fileprovider"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "financekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
+
+[[package]]
+name = "find-msvc-tools"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
 name = "foundation-models"
@@ -577,28 +599,30 @@ dependencies = [
 name = "gamecontroller"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "gameplaykit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "gamesave"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "geotoolbox"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -611,14 +635,15 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 name = "groupactivities"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "healthkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -631,28 +656,30 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 name = "identitylookup"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "imageplayground"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "immersivemediasupport"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "intents"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -680,14 +707,16 @@ checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 name = "ituneslibrary"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "journalingsuggestions"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -710,30 +739,23 @@ dependencies = [
 name = "linkpresentation"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "livecommunicationkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
-]
-
-[[package]]
-name = "lock_api"
-version = "0.4.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
-dependencies = [
- "scopeguard",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "lockedcameracapture"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -746,56 +768,62 @@ checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 name = "managedapp"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "managedappdistribution"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "managedsettings"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "mapkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "marketplacekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "mediaaccessibility"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "mediaextension"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "mediaplayer"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -808,21 +836,22 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 name = "messageui"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "metalperformanceshadersgraph"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "metrickit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -832,63 +861,52 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
-name = "mio"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a69bcab0ad47271a0234d9422b131806bf3968021e5dc9328caf2d4cd58557fc"
-dependencies = [
- "libc",
- "wasi",
- "windows-sys",
-]
-
-[[package]]
 name = "mlcompute"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "modelio"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "multipeerconnectivity"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "musickit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "naturallanguage"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "nearbyinteraction"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "networkextension"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -911,58 +929,37 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 name = "paperkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
-]
-
-[[package]]
-name = "parking_lot"
-version = "0.12.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
-dependencies = [
- "lock_api",
- "parking_lot_core",
-]
-
-[[package]]
-name = "parking_lot_core"
-version = "0.9.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1"
-dependencies = [
- "cfg-if",
- "libc",
- "redox_syscall",
- "smallvec",
- "windows-link",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "pdfkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "pencilkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "permissionkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "photosui"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -994,35 +991,39 @@ dependencies = [
 name = "proximityreader"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "pushkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "quicklook"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "quicklookthumbnailing"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "quicklookui"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1044,27 +1045,22 @@ checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
 name = "realityfoundation"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "realitykit"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "realitykit-sys",
 ]
 
 [[package]]
 name = "realitykit-sys"
-version = "0.0.1"
-
-[[package]]
-name = "redox_syscall"
-version = "0.5.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d"
+version = "0.1.0"
 dependencies = [
- "bitflags",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1100,21 +1096,23 @@ checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
 name = "relevancekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "replaykit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "roomplan"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1210,7 +1208,6 @@ dependencies = [
  "rswift-screencapturekit",
  "rswift-security",
  "rswift-spatial",
- "rswift-translation",
  "rswift-vision",
  "rswift-weatherkit",
  "safariservices",
@@ -1229,6 +1226,7 @@ dependencies = [
  "swiftui",
  "swiftui-app",
  "tipkit",
+ "translation",
  "uniformtypeidentifiers",
  "usernotifications",
  "videosubscriberaccount",
@@ -1241,16 +1239,12 @@ dependencies = [
 [[package]]
 name = "rswift-accelerate"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
-]
 
 [[package]]
 name = "rswift-accessibility"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1313,8 +1307,7 @@ dependencies = [
 name = "rswift-appkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1348,10 +1341,6 @@ dependencies = [
 [[package]]
 name = "rswift-audiotoolbox"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
-]
 
 [[package]]
 name = "rswift-authenticationservices"
@@ -1385,8 +1374,7 @@ dependencies = [
 name = "rswift-avfoundation"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1456,7 +1444,8 @@ dependencies = [
 name = "rswift-clockkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1497,16 +1486,12 @@ dependencies = [
 [[package]]
 name = "rswift-coreanimation"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
-]
 
 [[package]]
 name = "rswift-corebluetooth"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1554,23 +1539,19 @@ dependencies = [
 [[package]]
 name = "rswift-coremedia"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
-]
 
 [[package]]
 name = "rswift-coreml"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "rswift-coremotion"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1647,7 +1628,7 @@ dependencies = [
 name = "rswift-devicecheck"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1675,7 +1656,7 @@ dependencies = [
 name = "rswift-eventkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1710,8 +1691,7 @@ dependencies = [
 name = "rswift-foundation"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1725,7 +1705,8 @@ dependencies = [
 name = "rswift-fskit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1739,7 +1720,7 @@ dependencies = [
 name = "rswift-gamekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1781,7 +1762,8 @@ dependencies = [
 name = "rswift-homekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1844,7 +1826,7 @@ dependencies = [
 name = "rswift-localauthentication"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -1893,7 +1875,8 @@ dependencies = [
 name = "rswift-matter"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1921,7 +1904,8 @@ dependencies = [
 name = "rswift-messages"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -1935,15 +1919,15 @@ dependencies = [
 name = "rswift-metal"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
  "libc",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "rswift-metalkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2005,9 +1989,6 @@ dependencies = [
 [[package]]
 name = "rswift-network"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
-]
 
 [[package]]
 name = "rswift-networkextension"
@@ -2019,9 +2000,6 @@ dependencies = [
 [[package]]
 name = "rswift-oslog"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
-]
 
 [[package]]
 name = "rswift-paperkit"
@@ -2034,7 +2012,7 @@ dependencies = [
 name = "rswift-passkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2062,7 +2040,7 @@ dependencies = [
 name = "rswift-photos"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2116,14 +2094,14 @@ dependencies = [
 
 [[package]]
 name = "rswift-realitykit"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "realitykit",
 ]
 
 [[package]]
 name = "rswift-realitykit-sys"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "realitykit-sys",
 ]
@@ -2167,7 +2145,7 @@ dependencies = [
 name = "rswift-screencapturekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2180,10 +2158,6 @@ dependencies = [
 [[package]]
 name = "rswift-security"
 version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
-]
 
 [[package]]
 name = "rswift-sensitivecontentanalysis"
@@ -2329,7 +2303,8 @@ dependencies = [
 name = "rswift-symbols"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2351,13 +2326,6 @@ name = "rswift-tipkit"
 version = "0.0.1"
 dependencies = [
  "tipkit",
-]
-
-[[package]]
-name = "rswift-translation"
-version = "0.0.1"
-dependencies = [
- "apple-sys-helpers",
 ]
 
 [[package]]
@@ -2385,14 +2353,14 @@ dependencies = [
 name = "rswift-virtualization"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "rswift-vision"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2413,7 +2381,7 @@ dependencies = [
 name = "rswift-weatherkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2481,41 +2449,37 @@ checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
 name = "safariservices"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "scenekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
-
-[[package]]
-name = "scopeguard"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "secureelementcredential"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "sensitivecontentanalysis"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "sensorkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2554,21 +2518,23 @@ dependencies = [
 name = "servicesaccountlinking"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "sharedwithyou"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "shazamkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2578,64 +2544,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
-name = "signal-hook-registry"
-version = "1.4.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b"
-dependencies = [
- "errno",
- "libc",
-]
-
-[[package]]
-name = "smallvec"
-version = "1.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
-
-[[package]]
-name = "socket2"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a766e1110788c36f4fa1c2b71b387a7815aa65f88ce0229841826633d93723e"
-dependencies = [
- "libc",
- "windows-sys",
-]
-
-[[package]]
 name = "soundanalysis"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "speech"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "spritekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "stickerkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "storekit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
  "swift-helper-build",
 ]
 
@@ -2674,6 +2615,7 @@ name = "swift-helper-build"
 version = "0.0.1"
 dependencies = [
  "apple-platforms",
+ "cc",
 ]
 
 [[package]]
@@ -2697,7 +2639,8 @@ dependencies = [
 name = "swiftdata"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2746,21 +2689,23 @@ dependencies = [
 name = "tabulardata"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "telephonymessagingkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "tipkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2769,15 +2714,8 @@ version = "1.50.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "27ad5e34374e03cfffefc301becb44e9dc3c17584f414349ebe29ed26661822d"
 dependencies = [
- "bytes",
- "libc",
- "mio",
- "parking_lot",
  "pin-project-lite",
- "signal-hook-registry",
- "socket2",
  "tokio-macros",
- "windows-sys",
 ]
 
 [[package]]
@@ -2792,6 +2730,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "translation"
+version = "0.0.1"
+dependencies = [
+ "swift-helper-build",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2801,15 +2746,14 @@ checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 name = "uniformtypeidentifiers"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "usernotifications"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2822,35 +2766,30 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 name = "videosubscriberaccount"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
- "swift-helper-build",
+ "apple-objc-sys",
 ]
 
 [[package]]
 name = "visionkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "visualintelligence"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
-
-[[package]]
-name = "wasi"
-version = "0.11.1+wasi-snapshot-preview1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 
 [[package]]
 name = "webkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
 ]
 
 [[package]]
@@ -2864,14 +2803,16 @@ dependencies = [
 name = "wifiaware"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "wifiinfrastructure"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
@@ -2966,12 +2907,14 @@ dependencies = [
 name = "wirelessinsights"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]
 
 [[package]]
 name = "workoutkit"
 version = "0.0.1"
 dependencies = [
- "apple-sys-helpers",
+ "apple-objc-sys",
+ "swift-helper-build",
 ]

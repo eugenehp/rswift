@@ -3,6 +3,7 @@
 //! **Platform support:** all Apple platforms.
 //!
 //! Hardware-accelerated vector operations, FFT, and matrix multiplication.
+//! Links the Accelerate framework directly — no Swift bridge needed.
 //!
 //! # Quick start
 //!
@@ -27,29 +28,82 @@
 //!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"accelerate_available");
+/// Accelerate is always available on Apple platforms.
+pub fn is_available() -> bool { true }
 
+// ── Raw Accelerate C symbols ────────────────────────────────────────────────
+// These are the real framework symbols — no wrapper dylib needed.
+
+type VDSPLength = u64; // vDSP_Length is unsigned long on Apple
+
+// Stride type is signed long on Apple (vDSP_Stride)
+type VDSPStride = isize;
+
+#[allow(non_snake_case)]
 unsafe extern "C" {
-    fn accelerate_vdsp_add_f32(a: *const f32, b: *const f32, o: *mut f32, n: usize);
-    fn accelerate_vdsp_sub_f32(a: *const f32, b: *const f32, o: *mut f32, n: usize);
-    fn accelerate_vdsp_mul_f32(a: *const f32, b: *const f32, o: *mut f32, n: usize);
-    fn accelerate_vdsp_div_f32(a: *const f32, b: *const f32, o: *mut f32, n: usize);
-    fn accelerate_vdsp_scale_f32(a: *const f32, s: f32, o: *mut f32, n: usize);
-    fn accelerate_vdsp_dot_f32(a: *const f32, b: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_sum_f32(a: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_mean_f32(a: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_max_f32(a: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_min_f32(a: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_rms_f32(a: *const f32, n: usize) -> f32;
-    fn accelerate_vdsp_normalize_f32(a: *const f32, o: *mut f32, n: usize, mean: *mut f32, std: *mut f32);
-    fn accelerate_vdsp_add_f64(a: *const f64, b: *const f64, o: *mut f64, n: usize);
-    fn accelerate_vdsp_mul_f64(a: *const f64, b: *const f64, o: *mut f64, n: usize);
-    fn accelerate_vdsp_dot_f64(a: *const f64, b: *const f64, n: usize) -> f64;
-    fn accelerate_vdsp_sum_f64(a: *const f64, n: usize) -> f64;
-    fn accelerate_vdsp_fft_f32(input: *const f32, real: *mut f32, imag: *mut f32, log2n: usize, fwd: bool);
-    fn accelerate_blas_sgemm(a: *const f32, b: *const f32, o: *mut f32, m: i32, n: i32, k: i32, alpha: f32, beta: f32);
-    fn accelerate_blas_dgemm(a: *const f64, b: *const f64, o: *mut f64, m: i32, n: i32, k: i32, alpha: f64, beta: f64);
+    // vDSP f32
+    fn vDSP_vadd(a: *const f32, ia: VDSPStride, b: *const f32, ib: VDSPStride,
+                 c: *mut f32, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_vsub(a: *const f32, ia: VDSPStride, b: *const f32, ib: VDSPStride,
+                 c: *mut f32, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_vmul(a: *const f32, ia: VDSPStride, b: *const f32, ib: VDSPStride,
+                 c: *mut f32, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_vdiv(a: *const f32, ia: VDSPStride, b: *const f32, ib: VDSPStride,
+                 c: *mut f32, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_vsmul(a: *const f32, ia: VDSPStride, b: *const f32,
+                  c: *mut f32, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_dotpr(a: *const f32, ia: VDSPStride, b: *const f32, ib: VDSPStride,
+                  c: *mut f32, n: VDSPLength);
+    fn vDSP_sve(a: *const f32, ia: VDSPStride, c: *mut f32, n: VDSPLength);
+    fn vDSP_meanv(a: *const f32, ia: VDSPStride, c: *mut f32, n: VDSPLength);
+    fn vDSP_maxv(a: *const f32, ia: VDSPStride, c: *mut f32, n: VDSPLength);
+    fn vDSP_minv(a: *const f32, ia: VDSPStride, c: *mut f32, n: VDSPLength);
+    fn vDSP_rmsqv(a: *const f32, ia: VDSPStride, c: *mut f32, n: VDSPLength);
+    fn vDSP_normalize(a: *const f32, ia: VDSPStride, c: *mut f32, ic: VDSPStride,
+                      mean: *mut f32, stddev: *mut f32, n: VDSPLength);
+
+    // vDSP f64
+    fn vDSP_vaddD(a: *const f64, ia: VDSPStride, b: *const f64, ib: VDSPStride,
+                  c: *mut f64, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_vmulD(a: *const f64, ia: VDSPStride, b: *const f64, ib: VDSPStride,
+                  c: *mut f64, ic: VDSPStride, n: VDSPLength);
+    fn vDSP_dotprD(a: *const f64, ia: VDSPStride, b: *const f64, ib: VDSPStride,
+                   c: *mut f64, n: VDSPLength);
+    fn vDSP_sveD(a: *const f64, ia: VDSPStride, c: *mut f64, n: VDSPLength);
+
+    // FFT
+    fn vDSP_create_fftsetup(log2n: VDSPLength, radix: i32) -> *mut core::ffi::c_void;
+    fn vDSP_destroy_fftsetup(setup: *mut core::ffi::c_void);
+    fn vDSP_ctoz(input: *const [f32; 2], input_stride: VDSPStride,
+                 output: *mut DSPSplitComplex, output_stride: VDSPStride, n: VDSPLength);
+    fn vDSP_fft_zrip(setup: *mut core::ffi::c_void, c: *mut DSPSplitComplex,
+                     ic: VDSPStride, log2n: VDSPLength, direction: i32);
+
+    // BLAS
+    fn cblas_sgemm(order: i32, transa: i32, transb: i32,
+                   m: i32, n: i32, k: i32, alpha: f32,
+                   a: *const f32, lda: i32, b: *const f32, ldb: i32,
+                   beta: f32, c: *mut f32, ldc: i32);
+    fn cblas_dgemm(order: i32, transa: i32, transb: i32,
+                   m: i32, n: i32, k: i32, alpha: f64,
+                   a: *const f64, lda: i32, b: *const f64, ldb: i32,
+                   beta: f64, c: *mut f64, ldc: i32);
 }
+
+#[repr(C)]
+struct DSPSplitComplex {
+    realp: *mut f32,
+    imagp: *mut f32,
+}
+
+// FFT constants
+const FFT_RADIX2: i32 = 0;
+const FFT_FORWARD: i32 = 1;
+const FFT_INVERSE: i32 = -1;
+
+// BLAS constants
+const CBLAS_ROW_MAJOR: i32 = 101;
+const CBLAS_NO_TRANS: i32 = 111;
 
 /// vDSP — hardware-accelerated vector operations.
 pub mod vdsp {
@@ -61,7 +115,7 @@ pub mod vdsp {
     pub fn add_f32(a: &[f32], b: &[f32]) -> Vec<f32> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f32; n];
-        unsafe { accelerate_vdsp_add_f32(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        unsafe { vDSP_vadd(a.as_ptr(), 1, b.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
@@ -69,7 +123,8 @@ pub mod vdsp {
     pub fn sub_f32(a: &[f32], b: &[f32]) -> Vec<f32> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f32; n];
-        unsafe { accelerate_vdsp_sub_f32(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        // vDSP_vsub: c = b - a (args swapped)
+        unsafe { vDSP_vsub(b.as_ptr(), 1, a.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
@@ -77,7 +132,7 @@ pub mod vdsp {
     pub fn mul_f32(a: &[f32], b: &[f32]) -> Vec<f32> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f32; n];
-        unsafe { accelerate_vdsp_mul_f32(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        unsafe { vDSP_vmul(a.as_ptr(), 1, b.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
@@ -85,45 +140,59 @@ pub mod vdsp {
     pub fn div_f32(a: &[f32], b: &[f32]) -> Vec<f32> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f32; n];
-        unsafe { accelerate_vdsp_div_f32(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        // vDSP_vdiv: c = b / a (args swapped)
+        unsafe { vDSP_vdiv(b.as_ptr(), 1, a.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
     /// Scalar multiply: `out[i] = a[i] * scalar`.
     pub fn scale_f32(a: &[f32], scalar: f32) -> Vec<f32> {
         let mut out = vec![0.0f32; a.len()];
-        unsafe { accelerate_vdsp_scale_f32(a.as_ptr(), scalar, out.as_mut_ptr(), a.len()) }
+        unsafe { vDSP_vsmul(a.as_ptr(), 1, &scalar, out.as_mut_ptr(), 1, a.len() as VDSPLength) }
         out
     }
 
     /// Dot product.
     pub fn dot_f32(a: &[f32], b: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_dot_f32(a.as_ptr(), b.as_ptr(), a.len().min(b.len())) }
+        let mut result = 0.0f32;
+        let n = a.len().min(b.len());
+        unsafe { vDSP_dotpr(a.as_ptr(), 1, b.as_ptr(), 1, &mut result, n as VDSPLength) }
+        result
     }
 
     /// Sum of all elements.
     pub fn sum_f32(a: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_sum_f32(a.as_ptr(), a.len()) }
+        let mut result = 0.0f32;
+        unsafe { vDSP_sve(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     /// Mean of all elements.
     pub fn mean_f32(a: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_mean_f32(a.as_ptr(), a.len()) }
+        let mut result = 0.0f32;
+        unsafe { vDSP_meanv(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     /// Maximum element.
     pub fn max_f32(a: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_max_f32(a.as_ptr(), a.len()) }
+        let mut result = 0.0f32;
+        unsafe { vDSP_maxv(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     /// Minimum element.
     pub fn min_f32(a: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_min_f32(a.as_ptr(), a.len()) }
+        let mut result = 0.0f32;
+        unsafe { vDSP_minv(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     /// Root mean square.
     pub fn rms_f32(a: &[f32]) -> f32 {
-        unsafe { accelerate_vdsp_rms_f32(a.as_ptr(), a.len()) }
+        let mut result = 0.0f32;
+        unsafe { vDSP_rmsqv(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     /// Normalize: subtract mean, divide by standard deviation.
@@ -132,7 +201,7 @@ pub mod vdsp {
         let mut out = vec![0.0f32; a.len()];
         let mut mean = 0.0f32;
         let mut std = 0.0f32;
-        unsafe { accelerate_vdsp_normalize_f32(a.as_ptr(), out.as_mut_ptr(), a.len(), &mut mean, &mut std) }
+        unsafe { vDSP_normalize(a.as_ptr(), 1, out.as_mut_ptr(), 1, &mut mean, &mut std, a.len() as VDSPLength) }
         (out, mean, std)
     }
 
@@ -142,7 +211,7 @@ pub mod vdsp {
     pub fn add_f64(a: &[f64], b: &[f64]) -> Vec<f64> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f64; n];
-        unsafe { accelerate_vdsp_add_f64(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        unsafe { vDSP_vaddD(a.as_ptr(), 1, b.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
@@ -150,18 +219,23 @@ pub mod vdsp {
     pub fn mul_f64(a: &[f64], b: &[f64]) -> Vec<f64> {
         let n = a.len().min(b.len());
         let mut out = vec![0.0f64; n];
-        unsafe { accelerate_vdsp_mul_f64(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(), n) }
+        unsafe { vDSP_vmulD(a.as_ptr(), 1, b.as_ptr(), 1, out.as_mut_ptr(), 1, n as VDSPLength) }
         out
     }
 
     /// Dot product (f64).
     pub fn dot_f64(a: &[f64], b: &[f64]) -> f64 {
-        unsafe { accelerate_vdsp_dot_f64(a.as_ptr(), b.as_ptr(), a.len().min(b.len())) }
+        let mut result = 0.0f64;
+        let n = a.len().min(b.len());
+        unsafe { vDSP_dotprD(a.as_ptr(), 1, b.as_ptr(), 1, &mut result, n as VDSPLength) }
+        result
     }
 
     /// Sum (f64).
     pub fn sum_f64(a: &[f64]) -> f64 {
-        unsafe { accelerate_vdsp_sum_f64(a.as_ptr(), a.len()) }
+        let mut result = 0.0f64;
+        unsafe { vDSP_sveD(a.as_ptr(), 1, &mut result, a.len() as VDSPLength) }
+        result
     }
 
     // ── FFT ──
@@ -170,11 +244,18 @@ pub mod vdsp {
     /// Returns `(real_part, imaginary_part)` of length `n/2`.
     pub fn fft_f32(input: &[f32]) -> (Vec<f32>, Vec<f32>) {
         let n = input.len();
-        let log2n = (n as f64).log2() as usize;
+        let log2n = (n as f64).log2() as u64;
         let half = n / 2;
         let mut real = vec![0.0f32; half];
         let mut imag = vec![0.0f32; half];
-        unsafe { accelerate_vdsp_fft_f32(input.as_ptr(), real.as_mut_ptr(), imag.as_mut_ptr(), log2n, true) }
+        unsafe {
+            let setup = vDSP_create_fftsetup(log2n as VDSPLength, FFT_RADIX2);
+            if setup.is_null() { return (real, imag); }
+            let mut split = DSPSplitComplex { realp: real.as_mut_ptr(), imagp: imag.as_mut_ptr() };
+            vDSP_ctoz(input.as_ptr() as *const [f32; 2], 2, &mut split, 1, half as VDSPLength);
+            vDSP_fft_zrip(setup, &mut split, 1, log2n as VDSPLength, FFT_FORWARD);
+            vDSP_destroy_fftsetup(setup);
+        }
         (real, imag)
     }
 
@@ -183,8 +264,7 @@ pub mod vdsp {
     pub fn ifft_f32(real: &[f32], imag: &[f32]) -> Vec<f32> {
         let half = real.len();
         let n = half * 2;
-        let log2n = (n as f64).log2() as usize;
-        // Interleave for inverse
+        let log2n = (n as f64).log2() as u64;
         let mut input = vec![0.0f32; n];
         for i in 0..half {
             input[i * 2] = real[i];
@@ -192,8 +272,14 @@ pub mod vdsp {
         }
         let mut r = vec![0.0f32; half];
         let mut im = vec![0.0f32; half];
-        unsafe { accelerate_vdsp_fft_f32(input.as_ptr(), r.as_mut_ptr(), im.as_mut_ptr(), log2n, false) }
-        // Reconstruct
+        unsafe {
+            let setup = vDSP_create_fftsetup(log2n as VDSPLength, FFT_RADIX2);
+            if setup.is_null() { return vec![0.0; n]; }
+            let mut split = DSPSplitComplex { realp: r.as_mut_ptr(), imagp: im.as_mut_ptr() };
+            vDSP_ctoz(input.as_ptr() as *const [f32; 2], 2, &mut split, 1, half as VDSPLength);
+            vDSP_fft_zrip(setup, &mut split, 1, log2n as VDSPLength, FFT_INVERSE);
+            vDSP_destroy_fftsetup(setup);
+        }
         let mut out = vec![0.0f32; n];
         for i in 0..half {
             out[i * 2] = r[i];
@@ -213,8 +299,10 @@ pub mod blas {
     pub fn sgemm(a: &[f32], b: &[f32], m: usize, n: usize, k: usize) -> Vec<f32> {
         let mut out = vec![0.0f32; m * n];
         unsafe {
-            accelerate_blas_sgemm(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(),
-                                   m as i32, n as i32, k as i32, 1.0, 0.0)
+            cblas_sgemm(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, CBLAS_NO_TRANS,
+                        m as i32, n as i32, k as i32, 1.0,
+                        a.as_ptr(), k as i32, b.as_ptr(), n as i32,
+                        0.0, out.as_mut_ptr(), n as i32)
         }
         out
     }
@@ -223,8 +311,10 @@ pub mod blas {
     pub fn dgemm(a: &[f64], b: &[f64], m: usize, n: usize, k: usize) -> Vec<f64> {
         let mut out = vec![0.0f64; m * n];
         unsafe {
-            accelerate_blas_dgemm(a.as_ptr(), b.as_ptr(), out.as_mut_ptr(),
-                                   m as i32, n as i32, k as i32, 1.0, 0.0)
+            cblas_dgemm(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, CBLAS_NO_TRANS,
+                        m as i32, n as i32, k as i32, 1.0,
+                        a.as_ptr(), k as i32, b.as_ptr(), n as i32,
+                        0.0, out.as_mut_ptr(), n as i32)
         }
         out
     }
@@ -284,7 +374,6 @@ mod tests {
 
     #[test]
     fn test_sgemm_identity() {
-        // 2×2 identity × [1,2,3,4] = [1,2,3,4]
         let id = vec![1.0f32, 0.0, 0.0, 1.0];
         let a = vec![1.0f32, 2.0, 3.0, 4.0];
         let c = blas::sgemm(&id, &a, 2, 2, 2);

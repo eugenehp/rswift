@@ -1,28 +1,26 @@
-//! Apple NetworkExtension — VPN and content filtering from Rust.
+//! Apple NetworkExtension — VPN, content filter, DNS proxy from Rust.
 //!
-//! **Platform support:** macOS 10.11+, iOS 8+, tvOS 17+, visionOS 1+.
-//!
-//! Wraps NetworkExtension for VPN, DNS proxy, and content filter providers.
-//!
-//! ```ignore
-//! assert!(networkextension::is_available());
-//! ```
+//! **Platform:** macOS 10.11+, iOS 8+, tvOS 17+.
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"networkextension_available"; "macos", "ios", "tvos", "xros");
+use apple_objc_sys::*;
+
+pub fn is_available() -> bool { true }
+
+/// Check if a VPN configuration is installed.
+pub fn vpn_status() -> isize {
+    unsafe {
+        let mgr: Id = msg_send![class!(b"NEVPNManager\0"), sharedManager];
+        let conn: Id = msg_send![mgr, connection];
+        msg_send_t![isize; conn, status]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_vpn_status() { let _ = vpn_status(); }
+}

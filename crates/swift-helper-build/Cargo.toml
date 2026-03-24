@@ -8,6 +8,7 @@ repository = "https://github.com/eugenehp/rswift"
 
 [dependencies]
 apple-platforms = { path = "../apple-platforms" }
+cc = "1"
 
 [lints]
 workspace = true

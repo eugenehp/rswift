@@ -2,6 +2,8 @@
 //!
 //! **Platform support:** macOS 10.5+, iOS 2+, tvOS 9+.
 //!
+//! Links AudioToolbox directly — no Swift bridge needed.
+//!
 //! # Quick start
 //!
 //! ```ignore
@@ -18,23 +20,46 @@
 //!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"audiotoolbox_available");
+/// AudioToolbox is always available on Apple platforms.
+pub fn is_available() -> bool { true }
 
+// ── Raw AudioToolbox C symbols ──────────────────────────────────────────────
+
+type SystemSoundID = u32;
+type OSStatus = i32;
+
+#[allow(non_snake_case)]
 unsafe extern "C" {
-    fn audiotoolbox_play_system_sound(id: u32);
-    fn audiotoolbox_play_alert_sound(id: u32);
-    fn audiotoolbox_create_system_sound(p: *const u8, l: usize, out: *mut u32) -> i32;
-    fn audiotoolbox_dispose_system_sound(id: u32) -> i32;
+    fn AudioServicesPlaySystemSound(sound_id: SystemSoundID);
+    fn AudioServicesPlayAlertSound(sound_id: SystemSoundID);
+    fn AudioServicesCreateSystemSoundID(url: *const core::ffi::c_void, out: *mut SystemSoundID) -> OSStatus;
+    fn AudioServicesDisposeSystemSoundID(sound_id: SystemSoundID) -> OSStatus;
+
+    // CoreFoundation helpers for URL construction
+    fn CFStringCreateWithBytes(
+        alloc: *const core::ffi::c_void,
+        bytes: *const u8, num_bytes: isize,
+        encoding: u32, is_external: bool,
+    ) -> *const core::ffi::c_void;
+    fn CFURLCreateWithFileSystemPath(
+        alloc: *const core::ffi::c_void,
+        path: *const core::ffi::c_void,
+        style: isize, is_dir: bool,
+    ) -> *const core::ffi::c_void;
+    fn CFRelease(cf: *const core::ffi::c_void);
 }
+
+const K_CF_STRING_ENCODING_UTF8: u32 = 0x08000100;
+const K_CF_URL_POSIX_PATH_STYLE: isize = 0;
 
 /// Play a system sound by ID.
 pub fn play_system_sound(sound_id: u32) {
-    unsafe { audiotoolbox_play_system_sound(sound_id) }
+    unsafe { AudioServicesPlaySystemSound(sound_id) }
 }
 
 /// Play a system sound as an alert (may include vibration on iOS).
 pub fn play_alert_sound(sound_id: u32) {
-    unsafe { audiotoolbox_play_alert_sound(sound_id) }
+    unsafe { AudioServicesPlayAlertSound(sound_id) }
 }
 
 /// A handle to a loaded system sound file.
@@ -45,19 +70,32 @@ pub struct SystemSound {
 impl SystemSound {
     /// Load a sound from a file path.
     pub fn new(path: &str) -> Result<Self, i32> {
-        let mut id = 0u32;
-        let status = unsafe { audiotoolbox_create_system_sound(path.as_ptr(), path.len(), &mut id) };
-        if status == 0 { Ok(Self { id }) } else { Err(status) }
+        unsafe {
+            let cf_str = CFStringCreateWithBytes(
+                core::ptr::null(), path.as_ptr(), path.len() as isize,
+                K_CF_STRING_ENCODING_UTF8, false,
+            );
+            if cf_str.is_null() { return Err(-1); }
+            let cf_url = CFURLCreateWithFileSystemPath(
+                core::ptr::null(), cf_str, K_CF_URL_POSIX_PATH_STYLE, false,
+            );
+            CFRelease(cf_str);
+            if cf_url.is_null() { return Err(-1); }
+            let mut id: SystemSoundID = 0;
+            let status = AudioServicesCreateSystemSoundID(cf_url, &mut id);
+            CFRelease(cf_url);
+            if status == 0 { Ok(Self { id }) } else { Err(status) }
+        }
     }
 
     /// Play the sound.
     pub fn play(&self) {
-        unsafe { audiotoolbox_play_system_sound(self.id) }
+        unsafe { AudioServicesPlaySystemSound(self.id) }
     }
 
     /// Play as an alert sound.
     pub fn play_alert(&self) {
-        unsafe { audiotoolbox_play_alert_sound(self.id) }
+        unsafe { AudioServicesPlayAlertSound(self.id) }
     }
 
     /// Sound ID.
@@ -66,7 +104,7 @@ impl SystemSound {
 
 impl Drop for SystemSound {
     fn drop(&mut self) {
-        unsafe { audiotoolbox_dispose_system_sound(self.id); }
+        unsafe { AudioServicesDisposeSystemSoundID(self.id); }
     }
 }
 

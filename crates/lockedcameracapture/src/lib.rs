@@ -1,26 +1,5 @@
-//! Apple LockedCameraCapture — locked screen camera capture from Rust.
-//!
-//! **Platform support:** iOS 18+.
-//!
-//! ```ignore
-//! assert!(lockedcameracapture::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple LockedCameraCapture from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"lockedcameracapture_available"; "ios");
+unsafe extern "C" { fn lockedcameracapture_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { lockedcameracapture_swift_avail() } }

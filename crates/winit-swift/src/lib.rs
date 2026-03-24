@@ -1,3 +1,4 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //! # winit-swift — drop-in winit replacement with full Apple platform support
 //!
 //! Provides windowing, Metal rendering, haptics, accessibility, HDR, and

@@ -4,7 +4,9 @@
 set -e
 cd "$(dirname "$0")"
 
-SOURCES="SwiftUIHelper.swift SnapshotHelper.swift Platform.swift AppHost.swift RealityKitHelper.swift DataHelper.swift FrameworkHelpers.swift ChartsHelper.swift FoundationModelsHelper.swift"
+# RealityKitHelper.swift is compiled separately by crates/realitykit-sys/build.rs
+# into its own librealitykit_bridge.dylib — do NOT include it here to avoid duplicate symbols.
+SOURCES="SwiftUIHelper.swift SnapshotHelper.swift Platform.swift AppHost.swift DataHelper.swift FrameworkHelpers.swift ChartsHelper.swift FoundationModelsHelper.swift"
 
 # Auto-detect versions from SDK
 MACOS_VERSION="${MACOS_VERSION:-$(xcrun --sdk macosx --show-sdk-version 2>/dev/null | cut -d. -f1).0}"

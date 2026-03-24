@@ -1,5 +1,5 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("foundation_bridge")
-        .file("swift/bridge.swift")
-        .compile();
+    // Pure framework link — no cc, no .m, no swiftc.
+    // ObjC dispatch happens in Rust via apple-objc-sys.
+    println!("cargo:rustc-link-lib=framework=Foundation");
 }

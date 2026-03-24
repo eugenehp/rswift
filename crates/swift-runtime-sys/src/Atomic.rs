@@ -5,7 +5,10 @@
     non_snake_case,
     non_camel_case_types,
     non_upper_case_globals,
-    improper_ctypes
+    improper_ctypes,
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
 )]
 pub type _Tp = ();
 

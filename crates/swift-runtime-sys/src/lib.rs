@@ -1,3 +1,4 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //!
 //! ## Citation
 //!
@@ -70,6 +71,7 @@ pub mod MetadataIntrospection;
 /// Concurrency runtime (tasks, actors, executors, groups, async let).
 pub mod ConcurrencyRuntime;
 /// Concurrency ABI types and layouts.
+#[cfg(feature = "runtime-contract")]
 pub mod ConcurrencyAbi;
 /// Concurrency executor hooks (global function pointers for custom executors).
 pub mod ConcurrencyHooks;
@@ -141,12 +143,15 @@ pub mod InstrumentationExt;
 /// Remote mirror (out-of-process reflection).
 pub mod RemoteMirror;
 /// Runtime contract helpers.
+#[cfg(feature = "runtime-contract")]
 pub mod RuntimeContract;
 /// Runtime factory (convenience constructors).
+#[cfg(feature = "runtime-contract")]
 pub mod RuntimeFactory;
 /// Raw runtime function pointers.
 pub mod RuntimeRaw;
 /// Rust ↔ Swift executor interop.
+#[cfg(feature = "runtime-contract")]
 pub mod RustExecutorInterop;
 /// Swift symbol demangler.
 pub mod SymbolDemangler;

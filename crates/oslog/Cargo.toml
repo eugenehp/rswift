@@ -9,8 +9,6 @@ repository = "https://github.com/eugenehp/rswift"
 [lib]
 name = "oslog"
 
-[dependencies]
-apple-sys-helpers = { workspace = true }
 
 [lints]
 workspace = true

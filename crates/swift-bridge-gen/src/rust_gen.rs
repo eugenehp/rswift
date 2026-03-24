@@ -38,7 +38,7 @@ pub fn generate_rust(module: &str, types: &[&TypeInfo]) -> String {
     out
 }
 
-fn generate_type_bindings(out: &mut String, module: &str, mod_lower: &str, ty: &TypeInfo) {
+fn generate_type_bindings(out: &mut String, _module: &str, mod_lower: &str, ty: &TypeInfo) {
     let prefix = snake_case(&ty.name);
     out.push_str(&format!("// ── {} ──\n\n", ty.name));
 

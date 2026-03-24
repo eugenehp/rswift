@@ -11,7 +11,6 @@ keywords = ["metal", "gpu", "compute", "graphics", "apple"]
 name = "metal"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
 libc = "0.2"
 
 [[example]]
@@ -20,3 +19,6 @@ path = "examples/gpu_compute.rs"
 
 [lints]
 workspace = true
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }

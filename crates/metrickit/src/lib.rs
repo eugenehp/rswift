@@ -1,28 +1,11 @@
-//! Apple MetricKit — app diagnostics from Rust.
-//!
-//! **Platform support:** macOS 12+, iOS 13+, visionOS 1+.
-//!
-//! Wraps MetricKit for receiving aggregated app performance and diagnostic data.
-//!
-//! ```ignore
-//! assert!(metrickit::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple MetricKit — app diagnostics and metrics from Rust.
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
+use apple_objc_sys::*;
+pub fn is_available() -> bool { true }
 
-apple_sys_helpers::apple_framework!(c"metrickit_available"; "macos", "ios", "xros");
+/// MXMetricManager shared instance.
+pub fn shared_manager_ptr() -> Id {
+    unsafe { msg_send![class!(b"MXMetricManager\0"), sharedManager] }
+}
+

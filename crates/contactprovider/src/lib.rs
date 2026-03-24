@@ -1,26 +1,5 @@
-//! Apple ContactProvider — contact provider extensions from Rust.
-//!
-//! **Platform support:** iOS 18+.
-//!
-//! ```ignore
-//! assert!(contactprovider::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple ContactProvider from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"contactprovider_available"; "ios");
+unsafe extern "C" { fn contactprovider_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { contactprovider_swift_avail() } }

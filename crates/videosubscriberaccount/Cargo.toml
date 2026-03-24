@@ -11,10 +11,10 @@ keywords = ["videosubscriberaccount", "tv-provider", "sso", "apple"]
 name = "videosubscriberaccount"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-objc-sys = { path = "../apple-objc-sys" }
 
 [build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
+# no build deps needed
 
 [[example]]
 name = "check"

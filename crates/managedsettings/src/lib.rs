@@ -1,28 +1,11 @@
-//! Apple ManagedSettings — device restrictions from Rust.
-//!
-//! **Platform support:** macOS 14+, iOS 16+.
-//!
-//! Wraps ManagedSettings for applying Screen Time shields and restrictions.
-//!
-//! ```ignore
-//! assert!(managedsettings::is_available());
-//! ```
+//! Apple ManagedSettings — device management from Rust.
+//! Uses Swift bridge for Swift-only APIs.
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"managedsettings_available"; "macos", "ios");
+unsafe extern "C" { fn ms_swift_available() -> bool; }
+
+pub fn is_available() -> bool { unsafe { ms_swift_available() } }
+
+

@@ -3,6 +3,8 @@
 //! These match the exact binary layout that `swiftc -emit-ir` produces
 //! for a zero-sized struct conforming to SwiftUI.App.
 
+#![allow(dead_code, unused_variables, static_mut_refs, improper_ctypes_definitions)]
+
 use core::ffi::c_void;
 use std::sync::OnceLock;
 

@@ -10,10 +10,15 @@ repository = "https://github.com/eugenehp/rswift"
 name = "storekit"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-objc-sys = { path = "../apple-objc-sys" }
+
+[features]
+default = []
+## Enable StoreKit 2 async product fetching (requires Swift toolchain).
+storekit2 = ["dep:swift-helper-build"]
 
 [build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
+swift-helper-build = { path = "../swift-helper-build", optional = true }
 
 [[example]]
 name = "check"

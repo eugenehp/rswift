@@ -1,174 +1,238 @@
 //! Apple AppKit/UIKit — app lifecycle, clipboard, screen, alerts from Rust.
-//!
-//! **Platform support:** macOS (AppKit), iOS/tvOS/visionOS (UIKit).
-//!
-//! Provides a cross-platform API that maps to AppKit on macOS and UIKit on iOS.
-//!
-//! # Quick start
-//!
-//! ```ignore
-//! // Screen info
-//! let (w, h) = appkit::Screen::main_size();
-//! println!("Screen: {w}×{h} @{:.0}x", appkit::Screen::scale());
-//!
-//! // Clipboard
-//! appkit::Clipboard::set("Hello from Rust!");
-//! println!("{}", appkit::Clipboard::get().unwrap_or_default());
-//!
-//! // Open URL
-//! appkit::open_url("https://github.com/eugenehp/rswift");
-//!
-//! // Dark mode
-//! println!("Dark mode: {}", appkit::is_dark_mode());
-//! ```
+//! Pure Rust ObjC dispatch — no `.m` thunks.
 
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"appkit_available");
+use apple_objc_sys::*;
 
-unsafe extern "C" {
-    // Screen
-    fn appkit_main_screen_size(w: *mut f64, h: *mut f64);
-    fn appkit_screen_count() -> isize;
-    fn appkit_main_screen_scale() -> f64;
+/// Framework FFI constants.
+pub mod ffi;
 
-    // Clipboard
-    fn appkit_clipboard_get_string(buf: *mut u8, bl: usize) -> isize;
-    fn appkit_clipboard_set_string(ptr: *const u8, len: usize);
+pub fn is_available() -> bool { true }
 
-    // App control
-    fn appkit_app_is_running() -> bool;
-    fn appkit_app_activate();
-    fn appkit_app_terminate();
-    fn appkit_app_hide();
-    fn appkit_app_unhide();
 
-    // Alerts
-    fn appkit_show_alert(t: *const u8, tl: usize, m: *const u8, ml: usize, style: isize) -> isize;
-
-    // URL
-    fn appkit_open_url(u: *const u8, ul: usize) -> bool;
-    fn appkit_reveal_in_finder(p: *const u8, pl: usize);
-
-    // Dark mode
-    fn appkit_is_dark_mode() -> bool;
-
-    // Window
-    fn appkit_key_window_title(buf: *mut u8, bl: usize) -> isize;
-    fn appkit_window_count() -> isize;
-}
-
-/// Screen information.
 pub struct Screen;
-
 impl Screen {
-    /// Main screen size in points: `(width, height)`.
+    #[cfg(target_os = "macos")]
     pub fn main_size() -> (f64, f64) {
-        let (mut w, mut h) = (0.0f64, 0.0f64);
-        unsafe { appkit_main_screen_size(&mut w, &mut h) }
-        (w, h)
+        unsafe {
+            let s: Id = msg_send![class!(b"NSScreen\0"), mainScreen];
+            if s.is_null() { return (0.0, 0.0); }
+            // NSScreen.frame returns NSRect { origin: NSPoint, size: NSSize }
+            // On ARM64, NSRect is returned in registers (4 f64s)
+            let sel = sel_registerName(b"frame\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel) -> [f64; 4] =
+                core::mem::transmute(objc_msgSend as *const ());
+            let r = f(s, sel);
+            (r[2], r[3]) // width, height
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn main_size() -> (f64, f64) { (0.0, 0.0) }
 
-    /// Number of connected screens.
+    #[cfg(target_os = "macos")]
     pub fn count() -> usize {
-        unsafe { appkit_screen_count() as usize }
+        unsafe {
+            let arr: Id = msg_send![class!(b"NSScreen\0"), screens];
+            msg_send_t![usize; arr, count]
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn count() -> usize { 0 }
 
-    /// Main screen backing scale factor (1.0 or 2.0 for Retina).
+    #[cfg(target_os = "macos")]
     pub fn scale() -> f64 {
-        unsafe { appkit_main_screen_scale() }
+        unsafe {
+            let s: Id = msg_send![class!(b"NSScreen\0"), mainScreen];
+            if s.is_null() { return 1.0; }
+            let sel = sel_registerName(b"backingScaleFactor\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel) -> f64 =
+                core::mem::transmute(objc_msgSend as *const ());
+            f(s, sel)
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn scale() -> f64 { 1.0 }
 }
 
-/// System clipboard (pasteboard).
 pub struct Clipboard;
-
 impl Clipboard {
-    /// Get the current clipboard string.
+    #[cfg(target_os = "macos")]
     pub fn get() -> Option<String> {
-        let mut buf = vec![0u8; 65536];
-        let len = unsafe { appkit_clipboard_get_string(buf.as_mut_ptr(), buf.len()) };
-        if len < 0 { None } else { Some(String::from_utf8_lossy(&buf[..len.min(buf.len() as isize) as usize]).into()) }
+        unsafe {
+            let pb: Id = msg_send![class!(b"NSPasteboard\0"), generalPasteboard];
+            let nstype = nsstring("public.utf8-plain-text");
+            let s = msg_send![pb, stringForType: nstype];
+            CFRelease(nstype as CFTypeRef);
+            nsstring_to_string(s)
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn get() -> Option<String> { None }
 
-    /// Set the clipboard to a string.
+    #[cfg(target_os = "macos")]
     pub fn set(text: &str) {
-        unsafe { appkit_clipboard_set_string(text.as_ptr(), text.len()) }
+        unsafe {
+            let pb: Id = msg_send![class!(b"NSPasteboard\0"), generalPasteboard];
+            msg_send_void![pb, clearContents];
+            let s = nsstring(text);
+            let nstype = nsstring("public.utf8-plain-text");
+            msg_send_void![pb, setString: s, forType: nstype];
+            CFRelease(s as CFTypeRef);
+            CFRelease(nstype as CFTypeRef);
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn set(_text: &str) {}
 }
 
-/// Application lifecycle control.
 pub struct App;
-
 impl App {
-    /// Whether the application's run loop is active.
+    #[cfg(target_os = "macos")]
     pub fn is_running() -> bool {
-        unsafe { appkit_app_is_running() }
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            if app.is_null() { return false; }
+            msg_send_t![bool; app, isRunning]
+        }
     }
+    #[cfg(not(target_os = "macos"))]
+    pub fn is_running() -> bool { false }
 
-    /// Activate the application (bring to front).
     pub fn activate() {
-        unsafe { appkit_app_activate() }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            msg_send_void![app, activateIgnoringOtherApps: 1u8];
+        }
     }
-
-    /// Terminate the application.
     pub fn terminate() {
-        unsafe { appkit_app_terminate() }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            msg_send_void![app, terminate: NIL];
+        }
     }
-
-    /// Hide the application.
     pub fn hide() {
-        unsafe { appkit_app_hide() }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            msg_send_void![app, hide: NIL];
+        }
     }
-
-    /// Unhide the application.
     pub fn unhide() {
-        unsafe { appkit_app_unhide() }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            msg_send_void![app, unhideWithoutActivation];
+        }
     }
-
-    /// Number of open windows.
     pub fn window_count() -> usize {
-        unsafe { appkit_window_count() as usize }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            if app.is_null() { return 0; }
+            let wins: Id = msg_send![app, windows];
+            msg_send_t![usize; wins, count]
+        }
+        #[cfg(not(target_os = "macos"))]
+        { 0 }
     }
-
-    /// Title of the key (focused) window.
     pub fn key_window_title() -> Option<String> {
-        let mut buf = vec![0u8; 4096];
-        let len = unsafe { appkit_key_window_title(buf.as_mut_ptr(), buf.len()) };
-        if len < 0 { None } else { Some(String::from_utf8_lossy(&buf[..len as usize]).into()) }
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+            let win: Id = msg_send![app, keyWindow];
+            if win.is_null() { return None; }
+            nsstring_to_string(msg_send![win, title])
+        }
+        #[cfg(not(target_os = "macos"))]
+        { None }
     }
 }
 
-/// Alert dialog style.
 #[derive(Debug, Clone, Copy)]
-pub enum AlertStyle {
-    Warning = 0,
-    Informational = 1,
-    Critical = 2,
-}
+pub enum AlertStyle { Warning = 0, Informational = 1, Critical = 2 }
 
-/// Show a modal alert dialog. Returns `true` if OK was clicked.
+#[cfg(target_os = "macos")]
 pub fn show_alert(title: &str, message: &str, style: AlertStyle) -> bool {
-    let r = unsafe {
-        appkit_show_alert(title.as_ptr(), title.len(), message.as_ptr(), message.len(), style as isize)
-    };
-    r == 1
+    unsafe {
+        let alert: Id = msg_send![class!(b"NSAlert\0"), new];
+        let t = nsstring(title);
+        let m = nsstring(message);
+        msg_send_void![alert, setMessageText: t];
+        msg_send_void![alert, setInformativeText: m];
+        msg_send_void![alert, setAlertStyle: style as isize];
+        let ok = nsstring("OK");
+        let cancel = nsstring("Cancel");
+        msg_send_void![alert, addButtonWithTitle: ok];
+        msg_send_void![alert, addButtonWithTitle: cancel];
+        CFRelease(t as CFTypeRef);
+        CFRelease(m as CFTypeRef);
+        CFRelease(ok as CFTypeRef);
+        CFRelease(cancel as CFTypeRef);
+        let r: isize = msg_send_t![isize; alert, runModal];
+        r == 1000 // NSAlertFirstButtonReturn
+    }
 }
+#[cfg(not(target_os = "macos"))]
+pub fn show_alert(_title: &str, _message: &str, _style: AlertStyle) -> bool { false }
 
-/// Open a URL in the default browser/handler.
+#[cfg(target_os = "macos")]
 pub fn open_url(url: &str) -> bool {
-    unsafe { appkit_open_url(url.as_ptr(), url.len()) }
+    unsafe {
+        let ns = nsstring(url);
+        let u: Id = msg_send![class!(b"NSURL\0"), URLWithString: ns];
+        CFRelease(ns as CFTypeRef);
+        if u.is_null() { return false; }
+        let ws: Id = msg_send![class!(b"NSWorkspace\0"), sharedWorkspace];
+        msg_send_t![bool; ws, openURL: u]
+    }
 }
+#[cfg(not(target_os = "macos"))]
+pub fn open_url(_url: &str) -> bool { false }
 
-/// Reveal a file in Finder (macOS only).
+#[cfg(target_os = "macos")]
 pub fn reveal_in_finder(path: &str) {
-    unsafe { appkit_reveal_in_finder(path.as_ptr(), path.len()) }
+    unsafe {
+        let p = nsstring(path);
+        let empty = nsstring("");
+        let ws: Id = msg_send![class!(b"NSWorkspace\0"), sharedWorkspace];
+        msg_send_void![ws, selectFile: p, inFileViewerRootedAtPath: empty];
+        CFRelease(p as CFTypeRef);
+        CFRelease(empty as CFTypeRef);
+    }
 }
+#[cfg(not(target_os = "macos"))]
+pub fn reveal_in_finder(_path: &str) {}
 
-/// Whether the system is in dark mode.
+#[cfg(target_os = "macos")]
 pub fn is_dark_mode() -> bool {
-    unsafe { appkit_is_dark_mode() }
+    unsafe {
+        let app: Id = msg_send![class!(b"NSApplication\0"), sharedApplication];
+        if app.is_null() {
+            let defs: Id = msg_send![class!(b"NSUserDefaults\0"), standardUserDefaults];
+            let key = nsstring("AppleInterfaceStyle");
+            let val = msg_send![defs, stringForKey: key];
+            CFRelease(key as CFTypeRef);
+            return nsstring_to_string(val).map(|s| s.to_lowercase() == "dark").unwrap_or(false);
+        }
+        let appearance: Id = msg_send![app, effectiveAppearance];
+        let dark = nsstring("NSAppearanceNameDarkAqua");
+        let aqua = nsstring("NSAppearanceNameAqua");
+        // arrayWithObjects:count: takes a C array, not variadic
+        let objs = [dark as CFTypeRef, aqua as CFTypeRef];
+        let sel = sel_registerName(b"arrayWithObjects:count:\0".as_ptr());
+        let f: unsafe extern "C" fn(Id, Sel, *const CFTypeRef, usize) -> Id =
+            core::mem::transmute(objc_msgSend as *const ());
+        let arr = f(class!(b"NSArray\0") as Id, sel, objs.as_ptr(), 2);
+        let best = msg_send![appearance, bestMatchFromAppearancesWithNames: arr];
+        let eq: bool = msg_send_t![bool; best, isEqualToString: dark];
+        CFRelease(dark as CFTypeRef);
+        CFRelease(aqua as CFTypeRef);
+        eq
+    }
 }
+#[cfg(not(target_os = "macos"))]
+pub fn is_dark_mode() -> bool { false }

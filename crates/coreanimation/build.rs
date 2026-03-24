@@ -1,6 +1,6 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("coreanimation_bridge")
-        .file("swift/bridge.swift")
-        .framework("QuartzCore")
-        .compile();
+    // CACurrentMediaTime is pure C. CATransaction uses ObjC msg dispatch
+    // via libobjc which is always linked on Apple platforms.
+    println!("cargo:rustc-link-lib=framework=QuartzCore");
+    println!("cargo:rustc-link-lib=dylib=objc");
 }

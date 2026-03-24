@@ -1,28 +1,15 @@
-//! Apple AdServices — ad attribution from Rust.
-//!
-//! **Platform support:** macOS 14+, iOS 14.3+.
-//!
-//! Wraps AdServices for Apple Search Ads attribution tokens.
-//!
-//! ```ignore
-//! assert!(adservices::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple AdServices — Apple Search Ads attribution from Rust.
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
+use apple_objc_sys::*;
+pub fn is_available() -> bool { true }
 
-apple_sys_helpers::apple_framework!(c"adservices_available"; "macos", "ios");
+/// Request attribution token.
+/// Returns the attribution token string or None on error.
+pub fn attribution_token() -> Option<String> {
+    unsafe {
+        let token: Id = msg_send![class!(b"AAAttribution\0"), attributionTokenWithError: NIL];
+        nsstring_to_string(token)
+    }
+}
+

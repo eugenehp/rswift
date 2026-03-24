@@ -1,6 +1,4 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("coremedia_bridge")
-        .file("swift/bridge.swift")
-        .framework("CoreMedia")
-        .compile();
+    // Pure C framework — no Swift bridge, no shims, just link.
+    println!("cargo:rustc-link-lib=framework=CoreMedia");
 }

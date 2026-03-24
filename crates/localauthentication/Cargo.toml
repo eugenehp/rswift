@@ -1,6 +1,6 @@
 [package]
 name = "rswift-localauthentication"
-description = "Apple LocalAuthentication — biometric auth from Rust"
+description = "Apple LocalAuthentication — Face ID / Touch ID from Rust"
 version = "0.0.1"
 edition = "2021"
 license = "GPL-3.0"
@@ -10,7 +10,7 @@ repository = "https://github.com/eugenehp/rswift"
 name = "localauthentication"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-objc-sys = { path = "../apple-objc-sys" }
 
 [lints]
 workspace = true

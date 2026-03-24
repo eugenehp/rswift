@@ -1,129 +1,43 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //! Apple Foundation — core utilities from Rust.
 //!
 //! **Platform support:** all Apple platforms.
 //!
-//! Provides Rust access to UserDefaults, FileManager, ProcessInfo, Bundle,
-//! Locale, UUID, Date formatting, and JSON validation.
-//! Linked automatically via `build.rs` — no manual setup needed.
+//! Pure Rust ObjC message dispatch via `apple-objc-sys` — no `.m` thunks,
+//! no `cc` build step, no Swift bridge.
 //!
 //! # Quick start
 //!
 //! ```ignore
-//! // UserDefaults
 //! foundation::UserDefaults::set_string("name", "Alice");
 //! assert_eq!(foundation::UserDefaults::get_string("name"), Some("Alice".into()));
 //!
-//! // System info
 //! let info = foundation::ProcessInfo;
-//! println!("{} — {} cores, {} GB RAM",
-//!     info.hostname(),
-//!     info.processor_count(),
-//!     info.physical_memory() / 1_073_741_824);
-//!
-//! // File operations
-//! assert!(foundation::FileManager::file_exists("/etc/hosts"));
-//!
-//! // UUID
-//! println!("{}", foundation::uuid());
+//! println!("{} — {} cores", info.hostname(), info.processor_count());
 //! ```
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
 //!
 //! ## License
 //!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"foundation_available");
+use apple_objc_sys::*;
 
-// ── FFI ─────────────────────────────────────────────────────────────────────
+/// Foundation is always available on Apple platforms.
+/// Framework FFI constants.
+pub mod ffi;
 
-unsafe extern "C" {
-    // UserDefaults
-    fn foundation_userdefaults_set_string(k: *const u8, kl: usize, v: *const u8, vl: usize);
-    fn foundation_userdefaults_get_string(k: *const u8, kl: usize, buf: *mut u8, bl: usize) -> isize;
-    fn foundation_userdefaults_set_int(k: *const u8, kl: usize, v: i64);
-    fn foundation_userdefaults_get_int(k: *const u8, kl: usize, out: *mut i64) -> bool;
-    fn foundation_userdefaults_set_double(k: *const u8, kl: usize, v: f64);
-    fn foundation_userdefaults_get_double(k: *const u8, kl: usize, out: *mut f64) -> bool;
-    fn foundation_userdefaults_set_bool(k: *const u8, kl: usize, v: bool);
-    fn foundation_userdefaults_get_bool(k: *const u8, kl: usize, out: *mut bool) -> bool;
-    fn foundation_userdefaults_remove(k: *const u8, kl: usize);
-    fn foundation_userdefaults_synchronize() -> bool;
+pub fn is_available() -> bool { true }
 
-    // FileManager
-    fn foundation_filemanager_file_exists(p: *const u8, l: usize) -> bool;
-    fn foundation_filemanager_is_directory(p: *const u8, l: usize) -> bool;
-    fn foundation_filemanager_create_directory(p: *const u8, l: usize) -> bool;
-    fn foundation_filemanager_remove_item(p: *const u8, l: usize) -> bool;
-    fn foundation_filemanager_copy_item(s: *const u8, sl: usize, d: *const u8, dl: usize) -> bool;
-    fn foundation_filemanager_move_item(s: *const u8, sl: usize, d: *const u8, dl: usize) -> bool;
-    fn foundation_filemanager_contents_of_directory(p: *const u8, l: usize, buf: *mut u8, bl: usize) -> isize;
-    fn foundation_filemanager_home_directory(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_filemanager_temp_directory(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_filemanager_file_size(p: *const u8, l: usize) -> i64;
 
-    // ProcessInfo
-    fn foundation_processinfo_hostname(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_processinfo_os_version(major: *mut isize, minor: *mut isize, patch: *mut isize);
-    fn foundation_processinfo_processor_count() -> isize;
-    fn foundation_processinfo_active_processor_count() -> isize;
-    fn foundation_processinfo_physical_memory() -> u64;
-    fn foundation_processinfo_system_uptime() -> f64;
-    fn foundation_processinfo_process_name(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_processinfo_thermal_state() -> isize;
-    fn foundation_processinfo_is_low_power_mode() -> bool;
+// ── Internal helpers ────────────────────────────────────────────────────────
 
-    // Bundle
-    fn foundation_bundle_main_path(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_bundle_resource_path(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_bundle_identifier(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_bundle_info_string(k: *const u8, kl: usize, buf: *mut u8, bl: usize) -> isize;
-
-    // UUID
-    fn foundation_uuid_generate(buf: *mut u8, bl: usize) -> isize;
-
-    // Locale
-    fn foundation_locale_current_identifier(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_locale_preferred_languages(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_locale_current_language(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_locale_current_region(buf: *mut u8, bl: usize) -> isize;
-
-    // Date
-    fn foundation_date_now() -> f64;
-    fn foundation_date_format(ts: f64, fmt: *const u8, fl: usize, buf: *mut u8, bl: usize) -> isize;
-    fn foundation_timezone_current(buf: *mut u8, bl: usize) -> isize;
-    fn foundation_timezone_offset() -> isize;
-
-    // JSON
-    fn foundation_json_valid(d: *const u8, dl: usize) -> bool;
-
-    // URL search paths
-    fn foundation_url_search_path(dir: isize, domain: isize, buf: *mut u8, bl: usize) -> isize;
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-fn read_string(f: unsafe extern "C" fn(*mut u8, usize) -> isize) -> Option<String> {
-    let mut buf = vec![0u8; 4096];
-    let len = unsafe { f(buf.as_mut_ptr(), buf.len()) };
-    if len < 0 { None } else { Some(String::from_utf8_lossy(&buf[..len as usize]).into()) }
-}
-
-fn read_string_key(f: unsafe extern "C" fn(*const u8, usize, *mut u8, usize) -> isize, key: &str) -> Option<String> {
-    let mut buf = vec![0u8; 4096];
-    let len = unsafe { f(key.as_ptr(), key.len(), buf.as_mut_ptr(), buf.len()) };
-    if len < 0 { None } else { Some(String::from_utf8_lossy(&buf[..len as usize]).into()) }
+#[allow(dead_code)]
+unsafe fn read_nsstring_buf(obj: Id, sel_name: &[u8]) -> Option<String> {
+    let sel = sel_registerName(sel_name.as_ptr());
+    let f: unsafe extern "C" fn(Id, Sel) -> Id = core::mem::transmute(objc_msgSend as *const ());
+    let s = f(obj, sel);
+    nsstring_to_string(s)
 }
 
 // ── UserDefaults ────────────────────────────────────────────────────────────
@@ -132,57 +46,112 @@ fn read_string_key(f: unsafe extern "C" fn(*const u8, usize, *mut u8, usize) -> 
 pub struct UserDefaults;
 
 impl UserDefaults {
-    /// Store a string value.
+    unsafe fn defaults() -> Id {
+        msg_send![class!(b"NSUserDefaults\0"), standardUserDefaults]
+    }
+
     pub fn set_string(key: &str, value: &str) {
-        unsafe { foundation_userdefaults_set_string(key.as_ptr(), key.len(), value.as_ptr(), value.len()) }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            let v = nsstring(value);
+            msg_send_void![d, setObject: v, forKey: k];
+            CFRelease(k as CFTypeRef);
+            CFRelease(v as CFTypeRef);
+        }
     }
 
-    /// Read a string value. Returns `None` if the key doesn't exist.
     pub fn get_string(key: &str) -> Option<String> {
-        read_string_key(foundation_userdefaults_get_string, key)
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            let v = msg_send![d, stringForKey: k];
+            CFRelease(k as CFTypeRef);
+            nsstring_to_string(v)
+        }
     }
 
-    /// Store an integer value.
     pub fn set_int(key: &str, value: i64) {
-        unsafe { foundation_userdefaults_set_int(key.as_ptr(), key.len(), value) }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            msg_send_void![d, setInteger: value as isize, forKey: k];
+            CFRelease(k as CFTypeRef);
+        }
     }
 
-    /// Read an integer value.
     pub fn get_int(key: &str) -> Option<i64> {
-        let mut v = 0i64;
-        if unsafe { foundation_userdefaults_get_int(key.as_ptr(), key.len(), &mut v) } { Some(v) } else { None }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            let has = msg_send![d, objectForKey: k];
+            if has.is_null() { CFRelease(k as CFTypeRef); return None; }
+            let v: isize = msg_send_t![isize; d, integerForKey: k];
+            CFRelease(k as CFTypeRef);
+            Some(v as i64)
+        }
     }
 
-    /// Store a floating-point value.
     pub fn set_double(key: &str, value: f64) {
-        unsafe { foundation_userdefaults_set_double(key.as_ptr(), key.len(), value) }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            // setDouble:forKey: — f64 arg
+            let sel = sel_registerName(b"setDouble:forKey:\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel, f64, Id) =
+                core::mem::transmute(objc_msgSend as *const ());
+            f(d, sel, value, k);
+            CFRelease(k as CFTypeRef);
+        }
     }
 
-    /// Read a floating-point value.
     pub fn get_double(key: &str) -> Option<f64> {
-        let mut v = 0.0f64;
-        if unsafe { foundation_userdefaults_get_double(key.as_ptr(), key.len(), &mut v) } { Some(v) } else { None }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            let has = msg_send![d, objectForKey: k];
+            if has.is_null() { CFRelease(k as CFTypeRef); return None; }
+            let sel = sel_registerName(b"doubleForKey:\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel, Id) -> f64 =
+                core::mem::transmute(objc_msgSend as *const ());
+            let v = f(d, sel, k);
+            CFRelease(k as CFTypeRef);
+            Some(v)
+        }
     }
 
-    /// Store a boolean value.
     pub fn set_bool(key: &str, value: bool) {
-        unsafe { foundation_userdefaults_set_bool(key.as_ptr(), key.len(), value) }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            msg_send_void![d, setBool: value as u8, forKey: k];
+            CFRelease(k as CFTypeRef);
+        }
     }
 
-    /// Read a boolean value.
     pub fn get_bool(key: &str) -> Option<bool> {
-        let mut v = false;
-        if unsafe { foundation_userdefaults_get_bool(key.as_ptr(), key.len(), &mut v) } { Some(v) } else { None }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            let has = msg_send![d, objectForKey: k];
+            if has.is_null() { CFRelease(k as CFTypeRef); return None; }
+            let v: bool = msg_send_t![bool; d, boolForKey: k];
+            CFRelease(k as CFTypeRef);
+            Some(v)
+        }
     }
 
-    /// Remove a key.
     pub fn remove(key: &str) {
-        unsafe { foundation_userdefaults_remove(key.as_ptr(), key.len()) }
+        unsafe {
+            let d = Self::defaults();
+            let k = nsstring(key);
+            msg_send_void![d, removeObjectForKey: k];
+            CFRelease(k as CFTypeRef);
+        }
     }
 
-    /// Force synchronize to disk.
     pub fn synchronize() -> bool {
-        unsafe { foundation_userdefaults_synchronize() }
+        unsafe { msg_send_t![bool; Self::defaults(), synchronize] }
     }
 }
 
@@ -192,257 +161,345 @@ impl UserDefaults {
 pub struct FileManager;
 
 impl FileManager {
-    /// Check if a file or directory exists.
+    unsafe fn default_mgr() -> Id {
+        msg_send![class!(b"NSFileManager\0"), defaultManager]
+    }
+
     pub fn file_exists(path: &str) -> bool {
-        unsafe { foundation_filemanager_file_exists(path.as_ptr(), path.len()) }
+        unsafe {
+            let p = nsstring(path);
+            let r = msg_send_t![bool; Self::default_mgr(), fileExistsAtPath: p];
+            CFRelease(p as CFTypeRef);
+            r
+        }
     }
 
-    /// Check if a path is a directory.
     pub fn is_directory(path: &str) -> bool {
-        unsafe { foundation_filemanager_is_directory(path.as_ptr(), path.len()) }
+        unsafe {
+            let p = nsstring(path);
+            let mut is_dir: u8 = 0; // BOOL out-param
+            let sel = sel_registerName(b"fileExistsAtPath:isDirectory:\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel, Id, *mut u8) -> bool =
+                core::mem::transmute(objc_msgSend as *const ());
+            let exists = f(Self::default_mgr(), sel, p, &mut is_dir);
+            CFRelease(p as CFTypeRef);
+            exists && is_dir != 0
+        }
     }
 
-    /// Create a directory (with intermediate directories).
     pub fn create_directory(path: &str) -> bool {
-        unsafe { foundation_filemanager_create_directory(path.as_ptr(), path.len()) }
+        unsafe {
+            let p = nsstring(path);
+            let sel = sel_registerName(
+                b"createDirectoryAtPath:withIntermediateDirectories:attributes:error:\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel, Id, bool, Id, Id) -> bool =
+                core::mem::transmute(objc_msgSend as *const ());
+            let r = f(Self::default_mgr(), sel, p, true, NIL, NIL);
+            CFRelease(p as CFTypeRef);
+            r
+        }
     }
 
-    /// Remove a file or directory.
     pub fn remove(path: &str) -> bool {
-        unsafe { foundation_filemanager_remove_item(path.as_ptr(), path.len()) }
+        unsafe {
+            let p = nsstring(path);
+            let r = msg_send_t![bool; Self::default_mgr(), removeItemAtPath: p, error: NIL];
+            CFRelease(p as CFTypeRef);
+            r
+        }
     }
 
-    /// Copy a file or directory.
     pub fn copy(src: &str, dst: &str) -> bool {
-        unsafe { foundation_filemanager_copy_item(src.as_ptr(), src.len(), dst.as_ptr(), dst.len()) }
+        unsafe {
+            let s = nsstring(src);
+            let d = nsstring(dst);
+            let r = msg_send_t![bool; Self::default_mgr(),
+                copyItemAtPath: s, toPath: d, error: NIL];
+            CFRelease(s as CFTypeRef);
+            CFRelease(d as CFTypeRef);
+            r
+        }
     }
 
-    /// Move/rename a file or directory.
     pub fn rename(src: &str, dst: &str) -> bool {
-        unsafe { foundation_filemanager_move_item(src.as_ptr(), src.len(), dst.as_ptr(), dst.len()) }
+        unsafe {
+            let s = nsstring(src);
+            let d = nsstring(dst);
+            let r = msg_send_t![bool; Self::default_mgr(),
+                moveItemAtPath: s, toPath: d, error: NIL];
+            CFRelease(s as CFTypeRef);
+            CFRelease(d as CFTypeRef);
+            r
+        }
     }
 
-    /// List directory contents. Returns entries separated by newlines.
     pub fn list(path: &str) -> Option<Vec<String>> {
-        let mut buf = vec![0u8; 65536];
-        let len = unsafe { foundation_filemanager_contents_of_directory(path.as_ptr(), path.len(), buf.as_mut_ptr(), buf.len()) };
-        if len < 0 { return None; }
-        let s = String::from_utf8_lossy(&buf[..len as usize]);
-        Some(s.split('\n').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect())
+        unsafe {
+            let p = nsstring(path);
+            let arr = msg_send![Self::default_mgr(),
+                contentsOfDirectoryAtPath: p, error: NIL];
+            CFRelease(p as CFTypeRef);
+            if arr.is_null() { return None; }
+            let count: usize = msg_send_t![usize; arr, count];
+            let mut result = Vec::with_capacity(count);
+            for i in 0..count {
+                let item: Id = msg_send![arr, objectAtIndex: i];
+                if let Some(s) = nsstring_to_string(item) {
+                    result.push(s);
+                }
+            }
+            Some(result)
+        }
     }
 
-    /// Current user's home directory.
     pub fn home_directory() -> String {
-        read_string(foundation_filemanager_home_directory).unwrap_or_default()
+        unsafe {
+            // NSHomeDirectory() — C function
+            extern "C" { fn NSHomeDirectory() -> Id; }
+            nsstring_to_string(NSHomeDirectory()).unwrap_or_default()
+        }
     }
 
-    /// System temporary directory.
     pub fn temp_directory() -> String {
-        read_string(foundation_filemanager_temp_directory).unwrap_or_default()
+        unsafe {
+            extern "C" { fn NSTemporaryDirectory() -> Id; }
+            nsstring_to_string(NSTemporaryDirectory()).unwrap_or_default()
+        }
     }
 
-    /// File size in bytes (-1 on error).
     pub fn file_size(path: &str) -> i64 {
-        unsafe { foundation_filemanager_file_size(path.as_ptr(), path.len()) }
+        unsafe {
+            let p = nsstring(path);
+            let attrs = msg_send![Self::default_mgr(),
+                attributesOfItemAtPath: p, error: NIL];
+            CFRelease(p as CFTypeRef);
+            if attrs.is_null() { return -1; }
+            let size: u64 = msg_send_t![u64; attrs, fileSize];
+            size as i64
+        }
     }
 
-    /// Application Support directory for the current user.
-    pub fn application_support_directory() -> Option<String> {
-        search_path(14, 1) // NSApplicationSupportDirectory, NSUserDomainMask
-    }
-
-    /// Caches directory for the current user.
-    pub fn caches_directory() -> Option<String> {
-        search_path(13, 1) // NSCachesDirectory, NSUserDomainMask
-    }
-
-    /// Documents directory for the current user.
-    pub fn documents_directory() -> Option<String> {
-        search_path(9, 1) // NSDocumentDirectory, NSUserDomainMask
-    }
-
-    /// Downloads directory for the current user.
-    pub fn downloads_directory() -> Option<String> {
-        search_path(15, 1) // NSDownloadsDirectory, NSUserDomainMask
-    }
-
-    /// Desktop directory for the current user.
-    pub fn desktop_directory() -> Option<String> {
-        search_path(12, 1) // NSDesktopDirectory, NSUserDomainMask
-    }
+    pub fn application_support_directory() -> Option<String> { search_path(14, 1) }
+    pub fn caches_directory() -> Option<String> { search_path(13, 1) }
+    pub fn documents_directory() -> Option<String> { search_path(9, 1) }
+    pub fn downloads_directory() -> Option<String> { search_path(15, 1) }
+    pub fn desktop_directory() -> Option<String> { search_path(12, 1) }
 }
 
-fn search_path(dir: isize, domain: isize) -> Option<String> {
-    let mut buf = vec![0u8; 4096];
-    let len = unsafe { foundation_url_search_path(dir, domain, buf.as_mut_ptr(), buf.len()) };
-    if len < 0 { None } else { Some(String::from_utf8_lossy(&buf[..len as usize]).into()) }
+fn search_path(directory: usize, domain: usize) -> Option<String> {
+    unsafe {
+        let mgr = FileManager::default_mgr();
+        let sel = sel_registerName(b"URLsForDirectory:inDomains:\0".as_ptr());
+        let f: unsafe extern "C" fn(Id, Sel, usize, usize) -> Id =
+            core::mem::transmute(objc_msgSend as *const ());
+        let urls = f(mgr, sel, directory, domain);
+        if urls.is_null() { return None; }
+        let count: usize = msg_send_t![usize; urls, count];
+        if count == 0 { return None; }
+        let url: Id = msg_send![urls, firstObject];
+        let path: Id = msg_send![url, path];
+        nsstring_to_string(path)
+    }
 }
 
 // ── ProcessInfo ─────────────────────────────────────────────────────────────
 
-/// System and process information (wraps `ProcessInfo.processInfo`).
+/// System and process information.
 pub struct ProcessInfo;
 
 /// Thermal state of the system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ThermalState {
-    Nominal = 0,
-    Fair = 1,
-    Serious = 2,
-    Critical = 3,
-}
+pub enum ThermalState { Nominal = 0, Fair = 1, Serious = 2, Critical = 3 }
 
 impl ProcessInfo {
-    /// Machine hostname.
+    unsafe fn info() -> Id {
+        msg_send![class!(b"NSProcessInfo\0"), processInfo]
+    }
+
     pub fn hostname() -> String {
-        read_string(foundation_processinfo_hostname).unwrap_or_default()
+        unsafe { nsstring_to_string(msg_send![Self::info(), hostName]).unwrap_or_default() }
     }
 
-    /// Operating system version as (major, minor, patch).
     pub fn os_version() -> (usize, usize, usize) {
-        let (mut ma, mut mi, mut pa) = (0isize, 0isize, 0isize);
-        unsafe { foundation_processinfo_os_version(&mut ma, &mut mi, &mut pa) }
-        (ma as usize, mi as usize, pa as usize)
-    }
-
-    /// Total number of processors.
-    pub fn processor_count() -> usize {
-        unsafe { foundation_processinfo_processor_count() as usize }
-    }
-
-    /// Number of active processors.
-    pub fn active_processor_count() -> usize {
-        unsafe { foundation_processinfo_active_processor_count() as usize }
-    }
-
-    /// Physical memory in bytes.
-    pub fn physical_memory() -> u64 {
-        unsafe { foundation_processinfo_physical_memory() }
-    }
-
-    /// System uptime in seconds.
-    pub fn system_uptime() -> f64 {
-        unsafe { foundation_processinfo_system_uptime() }
-    }
-
-    /// Current process name.
-    pub fn process_name() -> String {
-        read_string(foundation_processinfo_process_name).unwrap_or_default()
-    }
-
-    /// Current thermal state.
-    pub fn thermal_state() -> ThermalState {
-        match unsafe { foundation_processinfo_thermal_state() } {
-            1 => ThermalState::Fair,
-            2 => ThermalState::Serious,
-            3 => ThermalState::Critical,
-            _ => ThermalState::Nominal,
+        // NSOperatingSystemVersion is { NSInteger major, minor, patch }
+        #[repr(C)]
+        struct OSVer { major: isize, minor: isize, patch: isize }
+        unsafe {
+            let sel = sel_registerName(b"operatingSystemVersion\0".as_ptr());
+            // On ARM64, small structs are returned in registers
+            let f: unsafe extern "C" fn(Id, Sel) -> OSVer =
+                core::mem::transmute(objc_msgSend as *const ());
+            let v = f(Self::info(), sel);
+            (v.major as usize, v.minor as usize, v.patch as usize)
         }
     }
 
-    /// Whether Low Power Mode is active.
+    pub fn processor_count() -> usize {
+        unsafe { msg_send_t![usize; Self::info(), processorCount] }
+    }
+
+    pub fn active_processor_count() -> usize {
+        unsafe { msg_send_t![usize; Self::info(), activeProcessorCount] }
+    }
+
+    pub fn physical_memory() -> u64 {
+        unsafe { msg_send_t![u64; Self::info(), physicalMemory] }
+    }
+
+    pub fn system_uptime() -> f64 {
+        unsafe {
+            let sel = sel_registerName(b"systemUptime\0".as_ptr());
+            let f: unsafe extern "C" fn(Id, Sel) -> f64 =
+                core::mem::transmute(objc_msgSend as *const ());
+            f(Self::info(), sel)
+        }
+    }
+
+    pub fn process_name() -> String {
+        unsafe { nsstring_to_string(msg_send![Self::info(), processName]).unwrap_or_default() }
+    }
+
+    pub fn thermal_state() -> ThermalState {
+        unsafe {
+            match msg_send_t![isize; Self::info(), thermalState] {
+                1 => ThermalState::Fair,
+                2 => ThermalState::Serious,
+                3 => ThermalState::Critical,
+                _ => ThermalState::Nominal,
+            }
+        }
+    }
+
     pub fn is_low_power_mode() -> bool {
-        unsafe { foundation_processinfo_is_low_power_mode() }
+        unsafe { msg_send_t![bool; Self::info(), isLowPowerModeEnabled] }
     }
 }
 
 // ── Bundle ──────────────────────────────────────────────────────────────────
 
-/// Main application bundle (wraps `Bundle.main`).
 pub struct Bundle;
 
 impl Bundle {
-    /// Bundle path.
+    unsafe fn main() -> Id { msg_send![class!(b"NSBundle\0"), mainBundle] }
+
     pub fn main_path() -> String {
-        read_string(foundation_bundle_main_path).unwrap_or_default()
+        unsafe { nsstring_to_string(msg_send![Self::main(), bundlePath]).unwrap_or_default() }
     }
-
-    /// Resource directory path.
     pub fn resource_path() -> Option<String> {
-        read_string(foundation_bundle_resource_path)
+        unsafe { nsstring_to_string(msg_send![Self::main(), resourcePath]) }
     }
-
-    /// Bundle identifier (e.g. `com.example.app`).
     pub fn identifier() -> Option<String> {
-        read_string(foundation_bundle_identifier)
+        unsafe { nsstring_to_string(msg_send![Self::main(), bundleIdentifier]) }
     }
-
-    /// Read a string from Info.plist.
     pub fn info_string(key: &str) -> Option<String> {
-        read_string_key(foundation_bundle_info_string, key)
+        unsafe {
+            let dict: Id = msg_send![Self::main(), infoDictionary];
+            if dict.is_null() { return None; }
+            let k = nsstring(key);
+            let val = msg_send![dict, objectForKey: k];
+            CFRelease(k as CFTypeRef);
+            nsstring_to_string(val)
+        }
     }
 }
 
 // ── Locale ──────────────────────────────────────────────────────────────────
 
-/// Current locale information (wraps `Locale.current`).
 pub struct Locale;
 
 impl Locale {
-    /// Current locale identifier (e.g. `en_US`).
     pub fn identifier() -> String {
-        read_string(foundation_locale_current_identifier).unwrap_or_default()
+        unsafe {
+            let loc = msg_send![class!(b"NSLocale\0"), currentLocale];
+            nsstring_to_string(msg_send![loc, localeIdentifier]).unwrap_or_default()
+        }
     }
-
-    /// Preferred language codes (e.g. `["en", "fr"]`).
     pub fn preferred_languages() -> Vec<String> {
-        read_string(foundation_locale_preferred_languages)
-            .unwrap_or_default()
-            .split(',')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.to_string())
-            .collect()
+        unsafe {
+            let arr = msg_send![class!(b"NSLocale\0"), preferredLanguages];
+            let count: usize = msg_send_t![usize; arr, count];
+            (0..count)
+                .filter_map(|i| nsstring_to_string(msg_send![arr, objectAtIndex: i]))
+                .collect()
+        }
     }
-
-    /// Current language code (e.g. `en`).
     pub fn language() -> String {
-        read_string(foundation_locale_current_language).unwrap_or_default()
+        unsafe {
+            let loc = msg_send![class!(b"NSLocale\0"), currentLocale];
+            nsstring_to_string(msg_send![loc, languageCode]).unwrap_or_else(|| "en".into())
+        }
     }
-
-    /// Current region code (e.g. `US`).
     pub fn region() -> String {
-        read_string(foundation_locale_current_region).unwrap_or_default()
+        unsafe {
+            let loc = msg_send![class!(b"NSLocale\0"), currentLocale];
+            nsstring_to_string(msg_send![loc, countryCode]).unwrap_or_default()
+        }
     }
 }
 
 // ── UUID ────────────────────────────────────────────────────────────────────
 
-/// Generate a new UUID string.
 pub fn uuid() -> String {
-    read_string(foundation_uuid_generate).unwrap_or_default()
+    unsafe {
+        let u = msg_send![class!(b"NSUUID\0"), UUID];
+        nsstring_to_string(msg_send![u, UUIDString]).unwrap_or_default()
+    }
 }
 
 // ── Date / Time ─────────────────────────────────────────────────────────────
 
-/// Current Unix timestamp (seconds since 1970).
 pub fn now() -> f64 {
-    unsafe { foundation_date_now() }
+    unsafe {
+        let d = msg_send![class!(b"NSDate\0"), date];
+        let sel = sel_registerName(b"timeIntervalSince1970\0".as_ptr());
+        let f: unsafe extern "C" fn(Id, Sel) -> f64 =
+            core::mem::transmute(objc_msgSend as *const ());
+        f(d, sel)
+    }
 }
 
-/// Format a timestamp using a date format string (e.g. `"yyyy-MM-dd HH:mm:ss"`).
 pub fn format_date(timestamp: f64, format: &str) -> String {
-    let mut buf = vec![0u8; 256];
-    let len = unsafe {
-        foundation_date_format(timestamp, format.as_ptr(), format.len(), buf.as_mut_ptr(), buf.len())
-    };
-    if len < 0 { String::new() } else { String::from_utf8_lossy(&buf[..len as usize]).into() }
+    unsafe {
+        let date_sel = sel_registerName(b"dateWithTimeIntervalSince1970:\0".as_ptr());
+        let f: unsafe extern "C" fn(Id, Sel, f64) -> Id =
+            core::mem::transmute(objc_msgSend as *const ());
+        let date = f(class!(b"NSDate\0") as Id, date_sel, timestamp);
+
+        let formatter = msg_send![class!(b"NSDateFormatter\0"), new];
+        let fmt_str = nsstring(format);
+        msg_send_void![formatter, setDateFormat: fmt_str];
+        CFRelease(fmt_str as CFTypeRef);
+
+        let result = msg_send![formatter, stringFromDate: date];
+        nsstring_to_string(result).unwrap_or_default()
+    }
 }
 
-/// Current timezone identifier (e.g. `America/New_York`).
 pub fn timezone() -> String {
-    read_string(foundation_timezone_current).unwrap_or_default()
+    unsafe {
+        let tz = msg_send![class!(b"NSTimeZone\0"), localTimeZone];
+        nsstring_to_string(msg_send![tz, name]).unwrap_or_default()
+    }
 }
 
-/// Current timezone offset from GMT in seconds.
 pub fn timezone_offset() -> isize {
-    unsafe { foundation_timezone_offset() }
+    unsafe {
+        let tz = msg_send![class!(b"NSTimeZone\0"), localTimeZone];
+        msg_send_t![isize; tz, secondsFromGMT]
+    }
 }
 
 // ── JSON ────────────────────────────────────────────────────────────────────
 
-/// Check if a byte slice is valid JSON.
 pub fn is_valid_json(data: &[u8]) -> bool {
-    unsafe { foundation_json_valid(data.as_ptr(), data.len()) }
+    unsafe {
+        let nsdata = msg_send![class!(b"NSData\0"), dataWithBytes: data.as_ptr(), length: data.len()];
+        let sel = sel_registerName(b"JSONObjectWithData:options:error:\0".as_ptr());
+        let f: unsafe extern "C" fn(Id, Sel, Id, usize, Id) -> Id =
+            core::mem::transmute(objc_msgSend as *const ());
+        let obj = f(class!(b"NSJSONSerialization\0") as Id, sel, nsdata, 0, NIL);
+        !obj.is_null()
+    }
 }
 
 #[cfg(test)]
@@ -450,16 +507,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_is_available() {
-        assert!(is_available());
-    }
+    fn test_is_available() { assert!(is_available()); }
 
     #[test]
     fn test_uuid_unique() {
         let a = uuid();
         let b = uuid();
         assert_ne!(a, b);
-        assert_eq!(a.len(), 36); // UUID format: 8-4-4-4-12
+        assert_eq!(a.len(), 36);
     }
 
     #[test]
@@ -530,12 +585,11 @@ mod tests {
     #[test]
     fn test_date_now() {
         let ts = now();
-        assert!(ts > 1_700_000_000.0); // After 2023
+        assert!(ts > 1_700_000_000.0);
     }
 
     #[test]
     fn test_format_date() {
-        // Use a timestamp that's the same year in any timezone
         let s = format_date(1_700_000_000.0, "yyyy");
         assert_eq!(s, "2023");
     }

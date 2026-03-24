@@ -10,7 +10,10 @@ repository = "https://github.com/eugenehp/rswift"
 name = "realityfoundation"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-objc-sys = { path = "../apple-objc-sys" }
 
 [lints]
 workspace = true
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }

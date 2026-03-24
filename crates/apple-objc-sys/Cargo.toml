@@ -1,0 +1,14 @@
+[package]
+name = "apple-objc-sys"
+description = "Minimal ObjC runtime FFI for Apple frameworks — no cc, no .m files"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["objc", "apple", "ffi", "runtime"]
+
+[lib]
+name = "apple_objc_sys"
+
+[lints]
+workspace = true

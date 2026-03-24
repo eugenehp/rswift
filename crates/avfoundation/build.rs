@@ -1,6 +1,4 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("avfoundation_bridge")
-        .file("swift/bridge.swift")
-        .framework("AVFoundation")
-        .compile();
+    println!("cargo:rustc-link-lib=framework=AVFoundation");
+    println!("cargo:rustc-link-lib=framework=CoreMedia");
 }

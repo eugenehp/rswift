@@ -1,34 +1,56 @@
-//! Apple Translation framework — on-device text translation from Rust.
+//! Apple Translation — text translation from Rust.
 //!
-//! **Platform support:** macOS 15+, iOS 18+ (not available on tvOS, watchOS, or visionOS).
-//!
-//! Wraps Apple's Translation framework for privacy-preserving,
-//! on-device translation. Available on macOS 15+ and iOS 18+.
+//! **Platform:** macOS 14+, iOS 17+.
 //!
 //! ```ignore
-//! use translation::*;
-//!
-//! assert!(is_available());
-//! ```
-//!
-//! Note: Full translation requires async session management which
-//! is bridged through the SwiftUI `.translationPresentation()` modifier.
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
+//! if translation::is_available() {
+//!     let langs = translation::supported_language_codes();
+//!     println!("Languages: {:?}", &langs[..5]);
 //! }
 //! ```
-//!
+
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"translation_available"; "macos", "ios");
+#[allow(unused_imports)] use core::ffi::c_void;
+
+unsafe extern "C" {
+    fn translation_available() -> bool;
+}
+
+pub fn is_available() -> bool {
+    unsafe { translation_available() }
+}
+
+/// Get list of ISO language codes supported for translation.
+pub fn supported_language_codes() -> Vec<String> {
+    let mut buf = vec![0u8; 8192];
+    let len = unsafe {
+        extern "C" {
+            fn translation_supported_languages(buf: *mut u8, len: usize) -> usize;
+        }
+        translation_supported_languages(buf.as_mut_ptr(), buf.len())
+    };
+    if len == 0 { return vec![]; }
+    String::from_utf8_lossy(&buf[..len.min(buf.len())])
+        .split(',')
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_available() {
+        assert!(is_available());
+    }
+
+    #[test]
+    fn test_languages() {
+        let langs = supported_language_codes();
+        assert!(langs.len() > 50, "Should have many language codes, got {}", langs.len());
+    }
+}

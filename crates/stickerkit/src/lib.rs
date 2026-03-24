@@ -1,26 +1,5 @@
-//! Apple StickerKit — iMessage sticker packs from Rust.
-//!
-//! **Platform support:** macOS 26+, iOS 26+.
-//!
-//! ```ignore
-//! assert!(stickerkit::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple StickerKit from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"stickerkit_available"; "macos", "ios");
+unsafe extern "C" { fn stickerkit_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { stickerkit_swift_avail() } }

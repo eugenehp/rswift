@@ -1,22 +1,36 @@
 [package]
 name = "realitykit"
-description = "Ergonomic RealityKit 3D scene builder from Rust (macOS, iOS, visionOS)"
-version = "0.0.1"
+description = "Full RealityKit bindings for Rust — macOS 12+, iOS 15+, visionOS 1+, macOS 26+"
+version = "0.1.1"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
-keywords = ["swift", "realitykit", "3d", "ar", "visionos"]
+keywords = ["realitykit", "3d", "ar", "visionos", "apple"]
 
 [lib]
 name = "realitykit"
 
 [features]
 default = []
-# visionOS-specific features (hand tracking, spatial anchors)
+## Enable visionOS-only components (InputTargetComponent, HoverEffectComponent, PortalComponent, etc.)
 visionos = []
+## Enable macOS 26 / iOS 26 / visionOS 3 APIs (BillboardComponent, ForceEffectComponent, etc.)
+macos-26 = []
 
 [dependencies]
 realitykit-sys = { path = "../realitykit-sys" }
 
 [lints]
 workspace = true
+
+[[example]]
+name = "scene_builder"
+path = "examples/scene_builder.rs"
+
+[[example]]
+name = "physics"
+path = "examples/physics.rs"
+
+[[example]]
+name = "audio"
+path = "examples/audio.rs"

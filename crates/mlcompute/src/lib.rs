@@ -1,26 +1,10 @@
-//! Apple MLCompute — ML compute operations from Rust (deprecated).
-//!
-//! **Platform support:** macOS 11+, iOS 14+ (deprecated, use MetalPerformanceShadersGraph).
-//!
-//! ```ignore
-//! assert!(mlcompute::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple MLCompute — ML training on GPU from Rust.
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
+use apple_objc_sys::*;
 
-apple_sys_helpers::apple_framework!(c"mlcompute_available"; "macos", "ios");
+/// Framework FFI constants.
+pub mod ffi;
+pub fn is_available() -> bool {
+    unsafe { !class!(b"MLCDevice\0").is_null() }
+}

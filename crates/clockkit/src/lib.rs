@@ -1,26 +1,5 @@
-//! Apple ClockKit — watchOS complications from Rust (deprecated).
-//!
-//! **Platform support:** watchOS 2+ (deprecated, use WidgetKit).
-//!
-//! ```ignore
-//! assert!(clockkit::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple ClockKit from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"clockkit_available"; "watchos");
+unsafe extern "C" { fn clockkit_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { clockkit_swift_avail() } }

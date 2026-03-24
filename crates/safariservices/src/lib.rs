@@ -1,28 +1,11 @@
-//! Apple SafariServices — in-app browser from Rust.
-//!
-//! **Platform support:** macOS 10.12+, iOS 7+, visionOS 1+.
-//!
-//! Wraps SafariServices for SFSafariViewController, content blockers, and web extensions.
-//!
-//! ```ignore
-//! assert!(safariservices::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple SafariServices — in-app Safari browser from Rust.
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
+use apple_objc_sys::*;
+pub fn is_available() -> bool { true }
 
-apple_sys_helpers::apple_framework!(c"safariservices_available"; "macos", "ios", "xros");
+/// Check if SFSafariViewController is available.
+pub fn safari_view_available() -> bool {
+    unsafe { !class!(b"SFSafariViewController\0").is_null() }
+}
+

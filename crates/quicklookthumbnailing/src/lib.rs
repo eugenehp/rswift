@@ -1,26 +1,11 @@
-//! Apple QuickLook Thumbnailing — file thumbnail generation from Rust.
-//!
-//! **Platform support:** macOS 10.15+, iOS 13+.
-//!
-//! ```ignore
-//! assert!(quicklookthumbnailing::is_available());
-//! ```
+//! Apple QuickLookThumbnailing — thumbnail generation from Rust.
+//! Uses Swift bridge for Swift-only APIs.
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"quicklookthumbnailing_available"; "macos", "ios");
+unsafe extern "C" { fn qlt_swift_available() -> bool; }
+
+pub fn is_available() -> bool { unsafe { qlt_swift_available() } }
+
+

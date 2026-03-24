@@ -1,3 +1,4 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //! Apple Intelligence on-device LLM from Rust.
 //!
 //! **Platform support:** macOS 26+, iOS 26+ (not available on tvOS, watchOS, or visionOS).

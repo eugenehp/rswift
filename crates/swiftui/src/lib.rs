@@ -1,3 +1,4 @@
+#![allow(unsafe_op_in_unsafe_fn)]
 //! Build and display SwiftUI views from Rust.
 //!
 //! **Platform support:** macOS 14+, iOS 17+, tvOS 17+, visionOS 1+.

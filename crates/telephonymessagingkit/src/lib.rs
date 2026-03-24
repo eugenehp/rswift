@@ -1,26 +1,5 @@
-//! Apple TelephonyMessagingKit — telephony messaging from Rust.
-//!
-//! **Platform support:** macOS 26+, iOS 26+.
-//!
-//! ```ignore
-//! assert!(telephonymessagingkit::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple TelephonyMessagingKit from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"telephonymessagingkit_available"; "macos", "ios");
+unsafe extern "C" { fn telephonymessagingkit_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { telephonymessagingkit_swift_avail() } }

@@ -1,7 +1,7 @@
 [package]
 name = "avfaudio"
 description = "Apple AVFAudio — audio playback, recording, and processing from Rust"
-version = "0.0.1"
+version = "0.0.6"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
@@ -11,10 +11,12 @@ keywords = ["audio", "avfaudio", "playback", "recording", "apple"]
 name = "avfaudio"
 
 [dependencies]
-apple-sys-helpers = { workspace = true }
+apple-objc-sys = { path = "../apple-objc-sys" }
+bitflags = "2"
+anyhow = "1"
 
 [build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
+# no build deps needed
 
 [[example]]
 name = "check"

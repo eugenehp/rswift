@@ -1,13 +1,16 @@
 [package]
 name = "realitykit-sys"
-description = "Raw FFI bindings to RealityKit via @_cdecl bridge"
-version = "0.0.1"
+description = "Raw FFI bindings to RealityKit — compiled automatically from Swift via build.rs"
+version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
 
 [lib]
 name = "realitykit_sys"
+
+[build-dependencies]
+swift-helper-build = { path = "../swift-helper-build" }
 
 [lints]
 workspace = true

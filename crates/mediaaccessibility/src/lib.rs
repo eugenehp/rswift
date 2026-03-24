@@ -1,26 +1,5 @@
-//! Apple MediaAccessibility — closed captions and audio descriptions from Rust.
-//!
-//! **Platform support:** macOS 10.9+, iOS 7+, tvOS 9+.
-//!
-//! ```ignore
-//! assert!(mediaaccessibility::is_available());
-//! ```
-
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
+//! Apple MediaAccessibility from Rust (Swift bridge).
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
-
-apple_sys_helpers::apple_framework!(c"mediaaccessibility_available"; "macos", "ios", "tvos");
+unsafe extern "C" { fn mediaaccessibility_swift_avail() -> bool; }
+pub fn is_available() -> bool { unsafe { mediaaccessibility_swift_avail() } }

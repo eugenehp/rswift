@@ -1,28 +1,23 @@
-//! Apple ExtensionKit — app extensions from Rust.
+//! Apple ExtensionKit — app extension hosting from Rust.
 //!
-//! **Platform support:** macOS 13+, iOS 16+, tvOS 16+, visionOS 1+, watchOS 9+.
-//!
-//! Wraps ExtensionKit and ExtensionFoundation for building and hosting app extensions.
-//!
-//! ```ignore
-//! assert!(extensionkit::is_available());
-//! ```
+//! **Platform:** macOS 13+, iOS 16+.
 
-//!
-//! ## Citation
-//!
-//! ```bibtex
-//! @software{rswift,
-//!   author       = {Eugene Hauptmann},
-//!   title        = {rswift},
-//!   year         = {2025},
-//!   url          = {https://github.com/eugenehp/rswift},
-//!   note         = {Build native Apple apps from Rust}
-//! }
-//! ```
-//!
 //! ## License
-//!
 //! GPL-3.0 — Copyright © 2025 [Eugene Hauptmann](https://github.com/eugenehp)
 
-apple_sys_helpers::apple_framework!(c"extensionkit_available");
+use apple_objc_sys::*;
+
+/// Framework FFI constants.
+pub mod ffi;
+
+pub fn is_available() -> bool {
+    unsafe { !class!(b"EXAppExtensionBrowserViewController\0").is_null() }
+}
+
+/// Check if extension browser is available.
+pub fn browser_available() -> bool { is_available() }
+
+/// Check if extension host view controller is available.
+pub fn host_view_controller_available() -> bool {
+    unsafe { !class!(b"EXHostViewController\0").is_null() }
+}

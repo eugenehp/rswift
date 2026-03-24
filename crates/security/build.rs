@@ -1,6 +1,5 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("security_bridge")
-        .file("swift/bridge.swift")
-        .framework("Security")
-        .compile();
+    // Pure C framework — no Swift bridge, no shims, just link.
+    println!("cargo:rustc-link-lib=framework=Security");
+    println!("cargo:rustc-link-lib=framework=CoreFoundation");
 }

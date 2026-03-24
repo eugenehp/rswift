@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 //! Swift Bridge Generator
 //!
 //! Reads a Swift API dump (from `swift-api-digester -dump-sdk`)

@@ -1,13 +1,16 @@
 [package]
 name = "apple-platforms"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 authors = ["Eugene Hauptmann"]
-description = "A convenient list of Apple platforms from LLVM in Rust"
+description = "Apple platform metadata, target-triple conversion, and SDK name resolution for Rust build tooling"
 license = "MIT"
 repository = "https://github.com/eugenehp/rswift"
 homepage = "https://github.com/eugenehp/apple-platforms"
-keywords = ["apple", "llvm", "clang", "platform", "macos"]
+documentation = "https://docs.rs/apple-platforms"
+readme = "README.md"
+keywords = ["apple", "llvm", "clang", "platform", "build-script"]
+categories = ["os::macos-apis", "development-tools::build-utils"]
 
 [[example]]
 name = "platform"

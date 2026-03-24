@@ -1,6 +1,5 @@
 fn main() {
-    swift_helper_build::SwiftBridge::new("audiotoolbox_bridge")
-        .file("swift/bridge.swift")
-        .framework("AudioToolbox")
-        .compile();
+    // Pure C framework — no Swift bridge, no shims, just link.
+    println!("cargo:rustc-link-lib=framework=AudioToolbox");
+    println!("cargo:rustc-link-lib=framework=CoreFoundation");
 }
