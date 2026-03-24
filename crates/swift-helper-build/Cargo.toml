@@ -7,7 +7,7 @@ license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
 
 [dependencies]
-apple-platforms = { path = "../apple-platforms" }
+apple-platforms = { version = "0.0.4", path = "../apple-platforms" }
 cc = "1"
 
 [lints]

@@ -10,7 +10,7 @@ repository = "https://github.com/eugenehp/rswift"
 name = "realitykit_sys"
 
 [build-dependencies]
-swift-helper-build = { path = "../swift-helper-build" }
+swift-helper-build = { version = "0.0.1", path = "../swift-helper-build" }
 
 [lints]
 workspace = true
