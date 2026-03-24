@@ -107,13 +107,13 @@ impl SwiftBridge {
 
     /// Compile the Swift bridge and emit all linker directives.
     ///
-    /// The compiled dylib is cached in `<CARGO_MANIFEST_DIR>/.swift-cache/`
-    /// keyed by a SHA-256 hash of the concatenated source files.  This means
-    /// the expensive `swiftc` invocation is skipped whenever the Swift sources
-    /// have not changed — even when Cargo regenerates a new `OUT_DIR` (which
-    /// happens on every `Cargo.toml` or `Cargo.lock` change).
+    /// The compiled dylib is cached in a stable cache directory under Cargo's
+    /// target dir (`<target>/.swift-cache/`) keyed by a source hash.
+    ///
+    /// This avoids writing into the crate source tree (which breaks
+    /// `cargo publish` verification) while still preserving a warm cache across
+    /// repeated builds.
     pub fn compile(self) {
-        let manifest = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
         let out_dir  = PathBuf::from(std::env::var("OUT_DIR").unwrap());
         let dylib_name = format!("lib{}.dylib", self.name);
 
@@ -125,10 +125,11 @@ impl SwiftBridge {
         }
 
         // ── Stable content-addressed cache ───────────────────────────────────
-        // Hash every source file in order.  The digest changes iff any source
-        // changes, so we can skip swiftc when the cache is warm — even across
-        // OUT_DIR invalidations caused by Cargo metadata changes.
-        let cache_dir = manifest.join(".swift-cache");
+        // Hash every source file in order. The digest changes iff any source
+        // changes, so we can skip swiftc when the cache is warm.
+        // Keep cache inside OUT_DIR so `cargo publish` verification is happy
+        // (build scripts must not modify package source directories).
+        let cache_dir = out_dir.join(".swift-cache");
         let hash = source_hash(&self.files);
         let cached_dylib = cache_dir.join(format!("{}_{}.dylib", self.name, &hash[..16]));
 
@@ -421,9 +422,9 @@ fn find_swift_lib() -> Option<String> {
     get_sdk_path().map(|sdk| format!("{sdk}/usr/lib/swift"))
 }
 
-/// Compute a hex SHA-256 digest of the concatenated contents of `files`.
-/// Used to key the `.swift-cache/` entries so swiftc is skipped when
-/// sources haven't changed, even if Cargo regenerates a new `OUT_DIR`.
+/// Compute a compact hex digest of the concatenated contents of `files`.
+/// Used to key `.swift-cache/` entries so swiftc is skipped when sources
+/// haven't changed.
 fn source_hash(files: &[PathBuf]) -> String {
     // Simple djb2-style 64-bit hash — good enough for a build cache key
     // and avoids pulling in a sha2 crate.

@@ -2612,7 +2612,7 @@ dependencies = [
 
 [[package]]
 name = "swift-helper-build"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "apple-platforms",
  "cc",
