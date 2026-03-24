@@ -2,6 +2,7 @@
 name = "swiftui-macros"
 version = "0.0.1"
 edition = "2021"
+description = "Procedural macros for the swiftui crate"
 license = "GPL-3.0"
 repository = "https://github.com/eugenehp/rswift"
 
