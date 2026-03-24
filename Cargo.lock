@@ -135,7 +135,7 @@ version = "0.0.1"
 
 [[package]]
 name = "apple-platforms"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "anyhow",
 ]
@@ -200,7 +200,7 @@ dependencies = [
 
 [[package]]
 name = "avfaudio"
-version = "0.0.1"
+version = "0.0.6"
 dependencies = [
  "anyhow",
  "apple-objc-sys",
@@ -1051,7 +1051,7 @@ dependencies = [
 
 [[package]]
 name = "realitykit"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "realitykit-sys",
 ]
@@ -2627,7 +2627,7 @@ dependencies = [
 
 [[package]]
 name = "swift-runtime-sys"
-version = "0.0.1"
+version = "0.0.4"
 dependencies = [
  "bindgen",
  "libc",
@@ -2645,7 +2645,7 @@ dependencies = [
 
 [[package]]
 name = "swiftui"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "libc",
  "swift-runtime",
