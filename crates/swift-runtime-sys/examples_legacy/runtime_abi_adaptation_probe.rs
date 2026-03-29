@@ -46,8 +46,8 @@ fn main() {
             test_table_has_swift_6_1,
         ),
         (
-            "Adapter table includes Swift 6.2 profile",
-            test_table_has_swift_6_2,
+            "Adapter table includes Swift 6.3 profile",
+            test_table_has_swift_6_3,
         ),
         (
             "Feature probe reports host macOS arm64 facts",
@@ -161,12 +161,12 @@ fn test_table_has_swift_6_1(contract: &RuntimeContract) -> Result<bool, RuntimeC
         .any(|profile| profile.profile_id == "swift_6_1_arm64_macos"))
 }
 
-fn test_table_has_swift_6_2(contract: &RuntimeContract) -> Result<bool, RuntimeContractError> {
+fn test_table_has_swift_6_3(contract: &RuntimeContract) -> Result<bool, RuntimeContractError> {
     Ok(contract
         .n5_adapter_table()?
         .profiles
         .iter()
-        .any(|profile| profile.profile_id == "swift_6_2_arm64_macos"))
+        .any(|profile| profile.profile_id == "swift_6_3_arm64_macos"))
 }
 
 fn test_probe_reports_host_facts(contract: &RuntimeContract) -> Result<bool, RuntimeContractError> {

@@ -324,6 +324,17 @@ unsafe extern "C" {
     );
 
     /// Start an async let.
+    ///
+    /// # Deprecated (Swift 6.3)
+    /// This function was removed from the Swift 6.3 headers. Use
+    /// [`swift_asyncLet_begin`] instead, which additionally takes a
+    /// `result_buffer` parameter.  The symbol still resolves at
+    /// runtime for ABI compatibility, but may be removed in a future
+    /// OS release.
+    #[deprecated(
+        since = "0.0.5",
+        note = "Removed in Swift 6.3 headers. Use swift_asyncLet_begin instead."
+    )]
     pub fn swift_asyncLet_start(
         async_let: AsyncLetRef,
         options: TaskOptionRecordRef,
@@ -363,12 +374,42 @@ unsafe extern "C" {
     pub fn swift_asyncLet_finish(async_let: AsyncLetRef, resumeFunction: *const c_void);
 
     /// End an async let.
+    ///
+    /// # Deprecated (Swift 6.3)
+    /// This function was removed from the Swift 6.3 headers. Use
+    /// [`swift_asyncLet_finish`] instead.  The symbol still resolves
+    /// at runtime for ABI compatibility, but may be removed in a
+    /// future OS release.
+    #[deprecated(
+        since = "0.0.5",
+        note = "Removed in Swift 6.3 headers. Use swift_asyncLet_finish instead."
+    )]
     pub fn swift_asyncLet_end(async_let: AsyncLetRef);
 
     /// Wait for an async let.
+    ///
+    /// # Deprecated (Swift 6.3)
+    /// This function was removed from the Swift 6.3 headers. Use
+    /// [`swift_asyncLet_get`] instead.  The symbol still resolves at
+    /// runtime for ABI compatibility, but may be removed in a future
+    /// OS release.
+    #[deprecated(
+        since = "0.0.5",
+        note = "Removed in Swift 6.3 headers. Use swift_asyncLet_get instead."
+    )]
     pub fn swift_asyncLet_wait(async_let: AsyncLetRef, resumeFunction: *const c_void);
 
     /// Wait for a throwing async let.
+    ///
+    /// # Deprecated (Swift 6.3)
+    /// This function was removed from the Swift 6.3 headers. Use
+    /// [`swift_asyncLet_get_throwing`] instead.  The symbol still
+    /// resolves at runtime for ABI compatibility, but may be removed
+    /// in a future OS release.
+    #[deprecated(
+        since = "0.0.5",
+        note = "Removed in Swift 6.3 headers. Use swift_asyncLet_get_throwing instead."
+    )]
     pub fn swift_asyncLet_wait_throwing(async_let: AsyncLetRef, resumeFunction: *const c_void);
 
     // ── Actors ──

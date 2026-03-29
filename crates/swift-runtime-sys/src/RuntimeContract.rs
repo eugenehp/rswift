@@ -6319,13 +6319,13 @@ impl<'a> RuntimeContract<'a> {
             Ok(true) => Ok(profile_id),
             Ok(false) => {
                 // Fallback to detecting closest compatible version
-                let fallback_id = format!("swift_6_2_arm64_macos"); // Fallback to 6.2
+                let fallback_id = format!("swift_6_3_arm64_macos"); // Fallback to 6.3
                 self.b3_select_adapter_profile(&fallback_id)?;
                 Ok(fallback_id)
             }
             Err(_) => {
                 // Last resort: try the default profile
-                let default_id = "swift_6_2_arm64_macos".to_string();
+                let default_id = "swift_6_3_arm64_macos".to_string();
                 self.b3_select_adapter_profile(&default_id)?;
                 Ok(default_id)
             }

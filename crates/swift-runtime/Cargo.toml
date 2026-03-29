@@ -11,7 +11,7 @@ keywords = ["swift", "runtime", "bindings", "safe"]
 name = "swift_runtime"
 
 [dependencies]
-swift-runtime-sys = { version = "0.0.4", path = "../swift-runtime-sys" }
+swift-runtime-sys = { version = "0.0.5", path = "../swift-runtime-sys" }
 
 [lints]
 workspace = true

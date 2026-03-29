@@ -30,7 +30,6 @@ const RUNTIME_HEADERS: &[&str] = &[
     "../../swift/include/swift/Runtime/Paths.h",
     "../../swift/include/swift/Runtime/Portability.h",
     "../../swift/include/swift/Runtime/PrebuiltStringMap.h",
-    "../../swift/include/swift/Runtime/SwiftDtoa.h",
     "../../swift/include/swift/Runtime/TracingCommon.h",
     "../../swift/include/swift/Runtime/VoucherShims.h",
     #[cfg(target_os = "windows")]
@@ -179,8 +178,6 @@ fn main() {
 
 #[cfg(feature = "generate-bindings")]
 fn generate_all_bindings() {
-    let mut mod_lines = Vec::new();
-
     for header in RUNTIME_HEADERS {
         let stem = Path::new(header)
             .file_stem()
@@ -189,11 +186,11 @@ fn generate_all_bindings() {
             .unwrap();
 
         generate_bindings_for(header, &format!("{stem}.rs"));
-        mod_lines.push(format!("pub mod {stem};"));
     }
 
-    let lib_rs = PathBuf::from("src/lib.rs");
-    fs::write(&lib_rs, mod_lines.join("\n")).expect("failed to write lib.rs");
+    // NOTE: Do NOT overwrite src/lib.rs here. It contains hand-written
+    // module declarations beyond the bindgen outputs. If you add or
+    // remove a header from RUNTIME_HEADERS, update src/lib.rs manually.
 }
 
 #[cfg(feature = "generate-bindings")]

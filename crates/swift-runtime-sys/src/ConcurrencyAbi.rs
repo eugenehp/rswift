@@ -115,9 +115,7 @@ pub fn required_symbols() -> &'static [&'static str] {
         "swift_continuation_init",
         "swift_continuation_resume",
         "swift_continuation_throwingResume",
-        "swift_asyncLet_start",
         "swift_asyncLet_begin",
-        "swift_asyncLet_end",
         "swift_job_run",
     ]
 }
@@ -129,6 +127,11 @@ pub fn optional_symbols() -> &'static [&'static str] {
         "swift_task_getMainExecutor",
         "swift_task_getCurrentExecutor",
         "swift_task_dealloc_through",
+        // Deprecated in Swift 6.3 (removed from headers, still present for ABI compat)
+        "swift_asyncLet_start",
+        "swift_asyncLet_end",
+        "swift_asyncLet_wait",
+        "swift_asyncLet_wait_throwing",
     ]
 }
 

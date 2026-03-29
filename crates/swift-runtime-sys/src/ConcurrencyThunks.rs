@@ -1310,6 +1310,10 @@ pub unsafe fn swift_asyncLet_begin(
     Ok(())
 }
 
+#[deprecated(
+    since = "0.0.5",
+    note = "Removed in Swift 6.3 headers. Use swift_asyncLet_begin instead."
+)]
 pub unsafe fn swift_asyncLet_start(
     al: AsyncLetRef,
     options: TaskOptionRecordRef,
@@ -1355,6 +1359,10 @@ pub unsafe fn swift_asyncLet_finish(
     Ok(())
 }
 
+#[deprecated(
+    since = "0.0.5",
+    note = "Removed in Swift 6.3 headers. Use swift_asyncLet_get instead."
+)]
 pub unsafe fn swift_asyncLet_wait(
     al: AsyncLetRef,
     resume: *const c_void,
@@ -1373,6 +1381,10 @@ pub unsafe fn swift_asyncLet_wait(
     Ok(())
 }
 
+#[deprecated(
+    since = "0.0.5",
+    note = "Removed in Swift 6.3 headers. Use swift_asyncLet_get_throwing instead."
+)]
 pub unsafe fn swift_asyncLet_wait_throwing(
     al: AsyncLetRef,
     resume: *const c_void,
