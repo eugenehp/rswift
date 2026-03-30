@@ -2649,8 +2649,6 @@ name = "swiftui"
 version = "0.0.2"
 dependencies = [
  "libc",
- "swift-runtime",
- "swift-runtime-sys",
  "swiftui-macros",
  "swiftui-sys",
 ]
