@@ -1,39 +1,39 @@
-//! SwiftUI Native — pure Rust, no Swift code, no bridge.
+//! # SwiftUI Native — pure Rust, zero Swift source files
 //!
-//! Constructs SwiftUI views entirely from Rust by calling Swift runtime
-//! functions via dlsym and arm64 inline assembly. Zero Swift source files.
-//!
-//! # Architecture
+//! Constructs SwiftUI views entirely from Rust using:
+//! - `dlsym` to resolve symbols from `SwiftUI.framework`
+//! - arm64 inline assembly for Swift calling convention
+//! - `swift-runtime-sys` for retain/release and string creation
 //!
 //! ```text
-//! Rust code
-//!   ↓ dlsym (SwiftUI.framework symbols)
-//!   ↓ arm64 asm (Swift calling convention)
-//! Swift Runtime (libswiftCore + SwiftUI.framework)
+//! ┌────────────┐    dlsym     ┌──────────────────────┐
+//! │  Rust code │ ──────────►  │ SwiftUI.framework    │
+//! │  (arm64    │   Swift CC   │ (Text, Color, etc.)  │
+//! │   asm)     │ ──────────►  │                      │
+//! └────────────┘              └──────────────────────┘
 //! ```
 //!
-//! # Available views (symbols exported from SwiftUI.framework)
+//! # Quick start
+//! ```ignore
+//! use swiftui_native::views::*;
 //!
-//! | View | Status |
-//! |------|--------|
-//! | `text()` | ✅ via LocalizedStringKey.init + Text.init |
-//! | `empty_view()` | ✅ via EmptyView.init() |
-//! | `divider()` | ✅ via Divider.init() |
-//! | `system_image()` | ✅ via Image.init(systemName:) |
-//! | `show_window()` | ✅ via NSHostingController + ObjC runtime |
-//!
-//! # Unavailable (symbols inlined by Swift compiler, not exported)
-//!
-//! Color, Spacer, VStack/HStack/ZStack, all modifiers (.padding, .frame, etc.),
-//! Button, AnyView. These require a Swift bridge — see the `swiftui` crate.
+//! let t = text("Hello from pure Rust!");
+//! let padded = padding(&t, 20.0);
+//! show_window(&padded, "Native", 400.0, 300.0);
+//! ```
 //!
 //! # Platform
 //!
-//! macOS aarch64 only. Requires Swift 6.3 runtime.
+//! macOS aarch64 only. Requires Swift 6.3+ runtime.
 
-pub mod existential;
+pub mod abi;
 pub mod resolve;
 pub mod views;
 pub mod window;
 
-pub use existential::ViewExistential;
+// Keep old modules for backward compat
+pub mod existential;
+#[doc(hidden)]
+pub mod handle;
+
+pub use views::ViewHandle;

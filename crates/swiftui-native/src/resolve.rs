@@ -1,4 +1,4 @@
-//! Symbol resolution from SwiftUI.framework — no Swift code, pure dlsym.
+//! Symbol resolution from SwiftUI.framework — pure dlsym, no Swift code.
 
 use core::ffi::{c_char, c_void};
 use std::sync::Once;
@@ -13,83 +13,89 @@ static mut FRAMEWORK: *mut c_void = std::ptr::null_mut();
 
 fn framework() -> *mut c_void {
     INIT.call_once(|| unsafe {
-        // Load SwiftUI + AppKit
-        let h = dlopen(
-            c"/System/Library/Frameworks/SwiftUI.framework/SwiftUI".as_ptr(),
-            1, // RTLD_LAZY
-        );
+        let h = dlopen(c"/System/Library/Frameworks/SwiftUI.framework/SwiftUI".as_ptr(), 1);
         assert!(!h.is_null(), "Failed to load SwiftUI.framework");
-        dlopen(
-            c"/System/Library/Frameworks/AppKit.framework/AppKit".as_ptr(),
-            1,
-        );
+        dlopen(c"/System/Library/Frameworks/AppKit.framework/AppKit".as_ptr(), 1);
         FRAMEWORK = h;
     });
     unsafe { FRAMEWORK }
 }
 
-/// Resolve a symbol from SwiftUI.framework. Returns null if not found.
 pub fn sym(name: &core::ffi::CStr) -> *const c_void {
     unsafe { dlsym(framework(), name.as_ptr()) as *const c_void }
 }
 
-/// Resolve a symbol, panicking if not found.
 pub fn require(name: &core::ffi::CStr) -> *const c_void {
     let p = sym(name);
-    assert!(
-        !p.is_null(),
-        "Required SwiftUI symbol not found: {}",
-        name.to_str().unwrap()
-    );
+    assert!(!p.is_null(), "Symbol not found: {}", name.to_str().unwrap());
     p
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Cached symbol accessors
-// ═══════════════════════════════════════════════════════════════════════════
-
-macro_rules! cached_sym {
-    ($fn_name:ident, $sym:expr) => {
-        pub fn $fn_name() -> *const c_void {
+macro_rules! cached {
+    ($name:ident, $sym:expr) => {
+        pub fn $name() -> *const c_void {
             use std::sync::atomic::{AtomicUsize, Ordering};
-            static CACHE: AtomicUsize = AtomicUsize::new(0);
-            let v = CACHE.load(Ordering::Relaxed);
-            if v != 0 {
-                return v as *const c_void;
-            }
+            static C: AtomicUsize = AtomicUsize::new(0);
+            let v = C.load(Ordering::Relaxed);
+            if v != 0 { return v as *const c_void; }
             let p = require($sym);
-            CACHE.store(p as usize, Ordering::Relaxed);
+            C.store(p as usize, Ordering::Relaxed);
             p
         }
     };
 }
 
-// Type metadata
-cached_sym!(text_metadata, c"$s7SwiftUI4TextVN");
-cached_sym!(empty_view_metadata, c"$s7SwiftUI9EmptyViewVN");
-cached_sym!(divider_metadata, c"$s7SwiftUI7DividerVN");
-cached_sym!(image_metadata, c"$s7SwiftUI5ImageVN");
-cached_sym!(color_metadata, c"$s7SwiftUI5ColorVN");
-cached_sym!(spacer_metadata, c"$s7SwiftUI6SpacerVN");
+// ── Type metadata ──
+cached!(text_meta,       c"$s7SwiftUI4TextVN");
+cached!(anyview_meta,    c"$s7SwiftUI7AnyViewVN");
+cached!(color_meta,      c"$s7SwiftUI5ColorVN");
+cached!(spacer_meta,     c"$s7SwiftUI6SpacerVN");
+cached!(empty_meta,      c"$s7SwiftUI9EmptyViewVN");
+cached!(divider_meta,    c"$s7SwiftUI7DividerVN");
+cached!(image_meta,      c"$s7SwiftUI5ImageVN");
 
-// View protocol
-cached_sym!(view_protocol, c"$s7SwiftUI4ViewMp");
+// ── View protocol ──
+cached!(view_proto,      c"$s7SwiftUI4ViewMp");
 
-// View witness tables
-cached_sym!(text_view_wt, c"$s7SwiftUI4TextVAA4ViewAAWP");
-cached_sym!(empty_view_view_wt, c"$s7SwiftUI9EmptyViewVAA0D0AAWP");
-cached_sym!(divider_view_wt, c"$s7SwiftUI7DividerVAA4ViewAAWP");
-cached_sym!(image_view_wt, c"$s7SwiftUI5ImageVAA4ViewAAWP");
-cached_sym!(color_view_wt, c"$s7SwiftUI5ColorVAA4ViewAAWP");
-cached_sym!(spacer_view_wt, c"$s7SwiftUI6SpacerVAA4ViewAAWP");
+// ── View witness tables ──
+cached!(text_wt,         c"$s7SwiftUI4TextVAA4ViewAAWP");
+cached!(anyview_wt,      c"$s7SwiftUI7AnyViewVAA0D0AAWP");
+cached!(color_wt,        c"$s7SwiftUI5ColorVAA4ViewAAWP");
+cached!(spacer_wt,       c"$s7SwiftUI6SpacerVAA4ViewAAWP");
+cached!(empty_wt,        c"$s7SwiftUI9EmptyViewVAA0D0AAWP");
+cached!(divider_wt,      c"$s7SwiftUI7DividerVAA4ViewAAWP");
+cached!(image_wt,        c"$s7SwiftUI5ImageVAA4ViewAAWP");
+cached!(color_shapestyle_wt, c"$s7SwiftUI5ColorVAA10ShapeStyleAAWP");
 
-// Initializers (only the ones actually exported)
-cached_sym!(empty_view_init, c"$s7SwiftUI9EmptyViewVACycfC");
-cached_sym!(divider_init, c"$s7SwiftUI7DividerVACycfC");
-cached_sym!(image_systemname_init, c"$s7SwiftUI5ImageV10systemNameACSS_tcfC");
-cached_sym!(lsk_string_literal_init, c"$s7SwiftUI18LocalizedStringKeyV13stringLiteralACSS_tcfC");
-cached_sym!(text_lsk_init, c"$s7SwiftUI4TextV_9tableName6bundle7commentAcA18LocalizedStringKeyV_SSSgSo8NSBundleCSgs06StaticI0VSgtcfC");
+// ── Initializers ──
+cached!(color_init,      c"$s7SwiftUI5ColorV_3red5green4blue7opacityA2C13RGBColorSpaceO_S4dtcfC");
+cached!(spacer_init,     c"$s7SwiftUI6SpacerV9minLengthAC12CoreGraphics7CGFloatVSg_tcfC");
+cached!(empty_init,      c"$s7SwiftUI9EmptyViewVACycfC");
+cached!(divider_init,    c"$s7SwiftUI7DividerVACycfC");
+cached!(image_sysname_init, c"$s7SwiftUI5ImageV10systemNameACSS_tcfC");
+cached!(lsk_init,        c"$s7SwiftUI18LocalizedStringKeyV13stringLiteralACSS_tcfC");
+cached!(text_lsk_init,   c"$s7SwiftUI4TextV_9tableName6bundle7commentAcA18LocalizedStringKeyV_SSSgSo8NSBundleCSgs06StaticI0VSgtcfC");
+cached!(anyview_init,    c"$s7SwiftUI7AnyViewVyACxcAA0D0RzlufC");
 
-// NSHostingController
-cached_sym!(hosting_controller_init, c"$s7SwiftUI19NSHostingControllerC8rootViewACyxGx_tcfC");
-cached_sym!(hosting_controller_meta_accessor, c"$s7SwiftUI19NSHostingControllerCMa");
+// ── Modifiers ──
+cached!(padding_fn,      c"$s7SwiftUI4ViewPAAE7paddingyQr12CoreGraphics7CGFloatVF");
+cached!(opacity_fn,      c"$s7SwiftUI4ViewPAAE7opacityyQrSdF");
+cached!(frame_fn,        c"$s7SwiftUI4ViewPAAE5frame5width6height9alignmentQr12CoreGraphics7CGFloatVSg_AkA9AlignmentVtF");
+cached!(bg_fn,           c"$s7SwiftUI4ViewPAAE10background_20ignoresSafeAreaEdgesQrqd___AA4EdgeO3SetVtAA10ShapeStyleRd__lF");
+
+// ── Stacks ──
+cached!(vstack_init,     c"$s7SwiftUI6VStackV9alignment7spacing7contentACyxGAA19HorizontalAlignmentV_12CoreGraphics7CGFloatVSgxyXEtcfC");
+cached!(hstack_init,     c"$s7SwiftUI6HStackV9alignment7spacing7contentACyxGAA17VerticalAlignmentV_12CoreGraphics7CGFloatVSgxyXEtcfC");
+
+// ── Stack defaults ──
+cached!(halign_center,   c"$s7SwiftUI19HorizontalAlignmentV6centerACvgZ");
+cached!(valign_center,   c"$s7SwiftUI17VerticalAlignmentV6centerACvgZ");
+cached!(alignment_center, c"$s7SwiftUI9AlignmentV6centerACvgZ");
+cached!(edge_set_all,    c"$s7SwiftUI4EdgeO3SetV3allAEvgZ");
+
+// ── Button ──
+cached!(button_init,     c"$s7SwiftUI6ButtonVA2A4TextVRszrlE_6actionACyAEGqd___yyctcSyRd__lufC");
+
+// ── Hosting ──
+cached!(hosting_ctrl_init, c"$s7SwiftUI19NSHostingControllerC8rootViewACyxGx_tcfC");
+cached!(hosting_ctrl_ma,  c"$s7SwiftUI19NSHostingControllerCMa");
