@@ -27,6 +27,7 @@
 //! macOS aarch64 only. Requires Swift 6.3+ runtime.
 
 pub mod abi;
+pub mod app;
 pub mod diag;
 pub mod resolve;
 pub mod views;

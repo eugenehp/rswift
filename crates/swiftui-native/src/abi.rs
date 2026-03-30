@@ -98,9 +98,13 @@ pub unsafe fn call_modifier_d0(
     result
 }
 
-/// Get the View:View witness table for ModifiedContent<AnyView, M> from the runtime.
+/// Get the View witness table for a type from the runtime.
 pub unsafe fn get_view_wt(meta: *const c_void) -> *const c_void {
-    let proto = resolve::view_proto();
+    get_view_wt_for_proto(meta, resolve::view_proto())
+}
+
+/// Get a protocol witness table for a type via `swift_conformsToProtocol`.
+pub unsafe fn get_view_wt_for_proto(meta: *const c_void, proto: *const c_void) -> *const c_void {
     type ConformsFn = unsafe extern "C" fn(*const c_void, *const c_void) -> *const c_void;
     let f: ConformsFn = core::mem::transmute(
         libc::dlsym((-2isize) as *mut c_void, c"swift_conformsToProtocol".as_ptr())

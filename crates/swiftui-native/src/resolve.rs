@@ -100,6 +100,14 @@ cached!(edge_set_all,    c"$s7SwiftUI4EdgeO3SetV3allAEvgZ");
 // ── Button ──
 cached!(button_init,     c"$s7SwiftUI6ButtonVA2A4TextVRszrlE_6actionACyAEGqd___yyctcSyRd__lufC");
 
+// ── App lifecycle ──
+cached!(app_proto,         c"$s7SwiftUI3AppMp");
+cached!(app_main,          c"$s7SwiftUI3AppPAAE4mainyyFZ");
+cached!(scene_proto,       c"$s7SwiftUI5SceneMp");
+cached!(scene_buildblock,  c"$s7SwiftUI12SceneBuilderV10buildBlockyxxAA0C0RzlFZ");
+cached!(windowgroup_init,  c"$s7SwiftUI11WindowGroupV2id5title11lazyContentACyxGSSSg_AA4TextVSgxyctcfC");
+cached!(windowgroup_ma,    c"$s7SwiftUI11WindowGroupVMa");
+
 // ── Hosting ──
 cached!(hosting_ctrl_init, c"$s7SwiftUI19NSHostingControllerC8rootViewACyxGx_tcfC");
 cached!(hosting_ctrl_ma,  c"$s7SwiftUI19NSHostingControllerCMa");

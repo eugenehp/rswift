@@ -15,5 +15,9 @@ swift-runtime = { version = "0.0.2", path = "../swift-runtime" }
 swift-runtime-sys = { version = "0.0.5", path = "../swift-runtime-sys" }
 libc = "0.2"
 
+[[example]]
+name = "app"
+path = "examples/app.rs"
+
 [lints]
 workspace = true

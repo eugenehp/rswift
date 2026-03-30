@@ -377,7 +377,7 @@ fn test_view_handle_debug() {
 
 #[test]
 fn test_all_required_symbols_resolve() {
-    // These should all resolve without panicking
+    // View symbols
     swiftui_native::resolve::text_meta();
     swiftui_native::resolve::anyview_meta();
     swiftui_native::resolve::color_meta();
@@ -392,4 +392,26 @@ fn test_all_required_symbols_resolve() {
     swiftui_native::resolve::frame_fn();
     swiftui_native::resolve::bg_fn();
     swiftui_native::resolve::hosting_ctrl_init();
+    // App lifecycle symbols
+    swiftui_native::resolve::app_proto();
+    swiftui_native::resolve::app_main();
+    swiftui_native::resolve::scene_proto();
+    swiftui_native::resolve::scene_buildblock();
+    swiftui_native::resolve::windowgroup_init();
+    swiftui_native::resolve::windowgroup_ma();
+}
+
+#[test]
+fn test_app_windowgroup_metadata() {
+    use core::ffi::c_void;
+    let wg_ma = swiftui_native::resolve::windowgroup_ma();
+    let av_meta = swiftui_native::resolve::anyview_meta();
+    type MA = unsafe extern "C" fn(usize, *const c_void) -> *const c_void;
+    let get_meta: MA = unsafe { core::mem::transmute(wg_ma) };
+    let wg_meta = unsafe { get_meta(0, av_meta) };
+    assert!(!wg_meta.is_null(), "WindowGroup<AnyView> metadata should resolve");
+    // Verify it conforms to Scene
+    let scene_proto = swiftui_native::resolve::scene_proto();
+    let wt = unsafe { swiftui_native::abi::get_view_wt_for_proto(wg_meta, scene_proto) };
+    assert!(!wt.is_null(), "WindowGroup<AnyView> should conform to Scene");
 }
