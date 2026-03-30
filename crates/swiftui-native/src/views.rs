@@ -49,6 +49,17 @@ impl Drop for ViewHandle {
 
 unsafe impl Send for ViewHandle {}
 
+impl std::fmt::Debug for ViewHandle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "ViewHandle({}, ptr={:#x})",
+            crate::diag::type_name(resolve::anyview_meta()),
+            self.0,
+        )
+    }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Views
 // ═══════════════════════════════════════════════════════════════════════════
@@ -214,11 +225,16 @@ pub fn system_image(name: &str) -> ViewHandle {
 // Modifiers (operate on AnyView, return new AnyView)
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Mangled type name strings for ModifiedContent<AnyView, Modifier> result types.
-// Obtained from _mangledTypeName() in Swift. Used with swift_getTypeByMangledNameInEnvironment.
+// Mangled type names for modifier result types.
+// Demangled equivalents shown in comments for readability.
+
+/// `SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI._PaddingLayout>`
 const PADDING_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA14_PaddingLayoutVG";
+/// `SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI._OpacityEffect>`
 const OPACITY_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA14_OpacityEffectVG";
+/// `SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI._FrameLayout>`
 const FRAME_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA12_FrameLayoutVG";
+/// `SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI._BackgroundStyleModifier<SwiftUI.Color>>`
 const BG_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA24_BackgroundStyleModifierVyAA5ColorVGG";
 
 /// Apply `.padding(_:)` modifier.
@@ -333,9 +349,17 @@ unsafe fn wrap_modifier_result_typed(
     mangled_name: &[u8],
 ) -> ViewHandle {
     let meta = abi::resolve_type_by_mangled_name(mangled_name);
-    assert!(!meta.is_null(), "Failed to resolve modifier result type");
+    assert!(
+        !meta.is_null(),
+        "Failed to resolve modifier result type: {}",
+        crate::diag::demangle_type(mangled_name),
+    );
     let view_wt = abi::get_view_wt(meta);
-    assert!(!view_wt.is_null(), "Failed to get View WT for modifier result");
+    assert!(
+        !view_wt.is_null(),
+        "{} does not conform to View",
+        crate::diag::demangle_type(mangled_name),
+    );
     ViewHandle::new(abi::anyview_wrap(
         result_bytes.as_ptr() as *const c_void,
         meta,

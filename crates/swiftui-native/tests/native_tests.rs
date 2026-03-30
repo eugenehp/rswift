@@ -260,7 +260,44 @@ fn test_color_is_anyview() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// §7: Symbol resolution
+// §7: Diagnostics — demangled names for DX
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_demangle_modifier_type() {
+    use swiftui_native::diag;
+    let name = diag::demangle_type(
+        b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA14_PaddingLayoutVG",
+    );
+    assert!(
+        name.contains("ModifiedContent") && name.contains("PaddingLayout"),
+        "Demangled name should be readable, got: {name}",
+    );
+}
+
+#[test]
+fn test_demangle_symbol() {
+    use swiftui_native::diag;
+    let name = diag::symbol_name(c"$s7SwiftUI4TextVN");
+    assert!(name.contains("Text"), "Should contain 'Text', got: {name}");
+}
+
+#[test]
+fn test_type_name_from_metadata() {
+    use swiftui_native::diag;
+    let name = diag::type_name(swiftui_native::resolve::text_meta());
+    assert!(name.contains("Text"), "Should contain 'Text', got: {name}");
+}
+
+#[test]
+fn test_view_handle_debug() {
+    let v = views::text("debug me");
+    let dbg = format!("{v:?}");
+    assert!(dbg.contains("AnyView"), "Debug should mention AnyView, got: {dbg}");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// §8: Symbol resolution
 // ═══════════════════════════════════════════════════════════════════════════
 
 #[test]

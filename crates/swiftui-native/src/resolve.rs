@@ -27,7 +27,11 @@ pub fn sym(name: &core::ffi::CStr) -> *const c_void {
 
 pub fn require(name: &core::ffi::CStr) -> *const c_void {
     let p = sym(name);
-    assert!(!p.is_null(), "Symbol not found: {}", name.to_str().unwrap());
+    assert!(
+        !p.is_null(),
+        "SwiftUI symbol not found: {}",
+        crate::diag::symbol_name(name),
+    );
     p
 }
 
