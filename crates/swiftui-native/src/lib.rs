@@ -28,8 +28,11 @@
 
 pub mod abi;
 pub mod app;
+pub mod color;
 pub mod diag;
+pub mod prelude;
 pub mod resolve;
+pub mod view;
 pub mod views;
 pub mod window;
 
@@ -38,4 +41,6 @@ pub mod existential;
 #[doc(hidden)]
 pub mod handle;
 
+pub use color::Color;
+pub use view::View;
 pub use views::ViewHandle;

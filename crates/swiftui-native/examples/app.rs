@@ -1,17 +1,29 @@
-//! Launch a SwiftUI app from pure Rust — no Swift source code.
+//! A SwiftUI app from pure Rust — no Swift source code.
 //!
 //! ```bash
 //! cargo run -p swiftui-native --example app
 //! ```
 
-fn main() {
-    println!("Launching SwiftUI app from pure Rust...");
-    println!("No Swift source code. No bridge dylib. No shim.");
-    println!("Just Rust → dlsym → arm64 asm → Swift runtime.");
+use swiftui_native::prelude::*;
 
-    swiftui_native::app::run(|| {
-        let title = swiftui_native::views::text("Hello from pure Rust! 🦀");
-        let padded = swiftui_native::views::padding(&title, 40.0);
-        padded
+fn main() {
+    run(|| {
+        vstack(&[
+            text("Hello from Rust! 🦀")
+                .padding(12.0)
+                .bg(Color::BLUE)
+                .rounded(8.0)
+                .opacity(0.95),
+            spacer(),
+            hstack(&[
+                image("star.fill"),
+                text("No Swift compiler needed"),
+            ]),
+            divider(),
+            text("Pure dlsym + arm64 asm → SwiftUI")
+                .padding(8.0),
+        ])
+        .padding(40.0)
+        .into_handle()
     });
 }
