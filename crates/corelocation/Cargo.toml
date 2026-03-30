@@ -19,5 +19,9 @@ apple-objc-sys = { path = "../apple-objc-sys" }
 name = "check"
 path = "examples/check.rs"
 
+[[example]]
+name = "corelocation"
+path = "examples/corelocation.rs"
+
 [lints]
 workspace = true
