@@ -141,7 +141,6 @@ fn test_opacity_fully_transparent() {
 }
 
 #[test]
-#[ignore = "frame() calling convention WIP — Optional<CGFloat> register layout"]
 fn test_frame() {
     let t = views::text("framed");
     let f = views::frame(&t, 100.0, 50.0);
@@ -149,7 +148,6 @@ fn test_frame() {
 }
 
 #[test]
-#[ignore = "background() calling convention WIP — extra ShapeStyle generic"]
 fn test_background() {
     let t = views::text("bg");
     let b = views::background(&t, 0.0, 0.0, 1.0, 1.0);
@@ -169,7 +167,6 @@ fn test_chain_padding_opacity() {
 }
 
 #[test]
-#[ignore = "depends on frame() and background()"]
 fn test_chain_many_modifiers() {
     let t = views::text("complex");
     let p = views::padding(&t, 12.0);
@@ -260,7 +257,85 @@ fn test_color_is_anyview() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// §7: Diagnostics — demangled names for DX
+// §7: Stacks
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_vstack_empty() {
+    let v = views::vstack(&[]);
+    assert!(!v.as_ptr().is_null());
+}
+
+#[test]
+fn test_vstack_single() {
+    let t = views::text("solo");
+    let v = views::vstack(&[t]);
+    assert!(!v.as_ptr().is_null());
+}
+
+#[test]
+fn test_vstack_two() {
+    let a = views::text("A");
+    let b = views::text("B");
+    let v = views::vstack(&[a, b]);
+    assert!(!v.as_ptr().is_null());
+}
+
+#[test]
+fn test_vstack_many() {
+    let children: Vec<_> = (0..5).map(|i| views::text(&format!("item {i}"))).collect();
+    let v = views::vstack(&children);
+    assert!(!v.as_ptr().is_null());
+}
+
+#[test]
+fn test_hstack() {
+    let a = views::text("L");
+    let b = views::spacer();
+    let c = views::text("R");
+    let h = views::hstack(&[a, b, c]);
+    assert!(!h.as_ptr().is_null());
+}
+
+#[test]
+fn test_zstack() {
+    let bg = views::color(1.0, 0.0, 0.0, 1.0);
+    let fg = views::text("overlay");
+    let z = views::zstack(&[bg, fg]);
+    assert!(!z.as_ptr().is_null());
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// §8: Button + stubs
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_button() {
+    let b = views::button("Click", || {});
+    assert!(!b.as_ptr().is_null());
+}
+
+#[test]
+fn test_scroll() {
+    let t = views::text("scrollable");
+    let s = views::scroll(&t);
+    assert!(!s.as_ptr().is_null());
+}
+
+#[test]
+fn test_styled_text() {
+    let t = views::styled_text("fancy", 24.0, 1, 1.0, 0.0, 0.0, 1.0);
+    assert!(!t.as_ptr().is_null());
+}
+
+#[test]
+fn test_bold_text() {
+    let t = views::bold_text("bold", 32.0);
+    assert!(!t.as_ptr().is_null());
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// §9: Diagnostics — demangled names for DX
 // ═══════════════════════════════════════════════════════════════════════════
 
 #[test]
