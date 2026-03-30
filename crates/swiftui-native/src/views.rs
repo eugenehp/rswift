@@ -214,14 +214,27 @@ pub fn system_image(name: &str) -> ViewHandle {
 // Modifiers (operate on AnyView, return new AnyView)
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Mangled type name strings for ModifiedContent<AnyView, Modifier> result types.
+// Obtained from _mangledTypeName() in Swift. Used with swift_getTypeByMangledNameInEnvironment.
+const PADDING_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA14_PaddingLayoutVG";
+const OPACITY_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA14_OpacityEffectVG";
+const FRAME_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA12_FrameLayoutVG";
+const BG_MANGLED: &[u8] = b"7SwiftUI15ModifiedContentVyAA7AnyViewVAA24_BackgroundStyleModifierVyAA5ColorVGG";
+
 /// Apply `.padding(_:)` modifier.
 pub fn padding(view: &ViewHandle, amount: f64) -> ViewHandle {
-    apply_modifier_cgfloat(view, resolve::padding_fn(), amount, 64)
+    unsafe {
+        let result = abi::call_modifier_d0(resolve::padding_fn(), view.0, amount, 64);
+        wrap_modifier_result_typed(&result, PADDING_MANGLED)
+    }
 }
 
 /// Apply `.opacity(_:)` modifier.
 pub fn opacity(view: &ViewHandle, value: f64) -> ViewHandle {
-    apply_modifier_cgfloat(view, resolve::opacity_fn(), value, 32)
+    unsafe {
+        let result = abi::call_modifier_d0(resolve::opacity_fn(), view.0, value, 32);
+        wrap_modifier_result_typed(&result, OPACITY_MANGLED)
+    }
 }
 
 /// Apply `.frame(width:height:alignment:)` modifier.
@@ -268,7 +281,7 @@ pub fn frame(view: &ViewHandle, width: f64, height: f64) -> ViewHandle {
             lateout("x16") _, lateout("x17") _, lateout("lr") _,
             clobber_abi("C"),
         );
-        wrap_modifier_result(&result)
+        wrap_modifier_result_typed(&result, FRAME_MANGLED)
     }
 }
 
@@ -306,136 +319,28 @@ pub fn background(view: &ViewHandle, r: f64, g: f64, b: f64, a: f64) -> ViewHand
         );
         // Don't drop c — consumed by the modifier
         core::mem::forget(c);
-        wrap_modifier_result(&result)
+        wrap_modifier_result_typed(&result, BG_MANGLED)
     }
 }
 
-/// Internal: apply a simple modifier that takes one CGFloat/Double arg.
-fn apply_modifier_cgfloat(
-    view: &ViewHandle,
-    func: *const c_void,
-    arg: f64,
-    result_buf_size: usize,
+/// Wrap a modifier result (ModifiedContent<AnyView, M>) into a new AnyView.
+///
+/// Takes the result bytes + the mangled type name string.
+/// Uses swift_getTypeByMangledNameInEnvironment to get metadata,
+/// then swift_conformsToProtocol to get the View WT.
+unsafe fn wrap_modifier_result_typed(
+    result_bytes: &[u8],
+    mangled_name: &[u8],
 ) -> ViewHandle {
-    unsafe {
-        let result = abi::call_modifier_d0(func, view.0, arg, result_buf_size);
-        wrap_modifier_result(&result)
-    }
-}
-
-/// Wrap a modifier result (ModifiedContent<AnyView, M>) back into AnyView.
-unsafe fn wrap_modifier_result(result_bytes: &[u8]) -> ViewHandle {
-    // We need the concrete ModifiedContent<AnyView, M> metadata + View WT.
-    // The simplest approach: use swift_conformsToProtocol on the result metadata.
-    // But we don't have the metadata easily.
-    //
-    // Alternative: wrap via AnyView.init by passing the result with its metadata.
-    // The result IS a valid View. We just need to find its metadata.
-    //
-    // For now, use AnyView wrapping with AnyView metadata (since AnyView is what
-    // the modifier was applied to, and AnyView:View always conforms).
-    //
-    // Actually — the modifier result is NOT an AnyView. It's ModifiedContent<AnyView, M>.
-    // We need its metadata to wrap it in AnyView.
-    //
-    // Simplest correct approach: since all our modifiers operate on AnyView,
-    // the result metadata is always ModifiedContent<AnyView, M> which we can look up.
-    // But the metadata depends on M.
-    //
-    // HACK for now: read the metadata from the existential-like layout.
-    // Actually, the function writes the result as a plain value, not an existential.
-    //
-    // The proper solution is to call AnyView.init with the correct metadata.
-    // We can get the metadata by calling __swift_instantiateConcreteTypeFromMangledName
-    // for each modifier type, but that requires knowing the mangled name.
-    //
-    // SIMPLEST CORRECT APPROACH: re-wrap in AnyView by calling AnyView.init
-    // with the result value, using the result type metadata and View WT.
-    // The result metadata can be obtained from swift_getTypeByMangledName.
-    //
-    // For this iteration, we wrap by treating the result as an opaque
-    // value and using the padding/opacity ModifiedContent metadata.
-
-    // For all our modifiers, the result is already a valid value.
-    // We just wrap it in AnyView. The AnyView.init<V> takes @in V.
-    // We pass the result buffer as the value, with appropriate meta + WT.
-    //
-    // Since we can't easily determine the result type metadata at runtime,
-    // we take a different approach: chain modifiers by re-wrapping.
-    // This means each modifier creates a NEW AnyView around the previous one.
-
-    // Read the AnyView that's inside the ModifiedContent (first 8 bytes)
-    // and the modifier data, then wrap the whole thing.
-
-    // Actually, the cleanest solution: just return the first 8 bytes as AnyView
-    // since the runtime knows how to render any View.
-    // NO — that's wrong. The first 8 bytes are the AnyView INSIDE the ModifiedContent,
-    // not the ModifiedContent itself.
-
-    // OK, real solution: use the result buffer pointer directly with AnyView.init.
-    // We need the result type's metadata. Since all our results are
-    // ModifiedContent<AnyView, SomeModifier>, we need to get that metadata.
-
-    // For each specific modifier, we'd need the specific mangled metadata name.
-    // This is fragile. Better approach: don't decompose — keep result as-is
-    // and look up metadata via swift_getTypeByMangledNameInEnvironment.
-
-    // FOR NOW: Use a different strategy — call modifiers that return AnyView directly
-    // by wrapping in `.modifier()` + custom ViewModifier. But that's also complex.
-
-    // PRAGMATIC SOLUTION: We've already proven the concept. For modifiers,
-    // let's use the View.modifier<M>() approach with known modifier types.
-    // The result of View.modifier is ModifiedContent<Self, M> which has known size.
-
-    // SIMPLEST: Since AnyView.init takes @in V and needs V:View WT,
-    // and we can get the WT via swift_conformsToProtocol, let's do that.
-
-    // But we still need the metadata. We can get it from the VWT that's
-    // pointed to by metadata-1.
-
-    // ACTUALLY: The result is written to a buffer. We don't have the metadata
-    // pointer for it. We'd need to compute it from the mangled type name.
-
-    // FINAL SIMPLE APPROACH: For the benchmark, just retain the inner AnyView
-    // (the result's first field) and return it. The modifier IS applied
-    // because SwiftUI's rendering reads from the AnyView's internal storage.
-    // AnyView wraps a class that holds the actual view tree.
-
-    // Let me re-examine: when we call View.opacity(0.5) on an AnyView,
-    // the result is ModifiedContent<AnyView, _OpacityEffect>.
-    // The AnyView inside it is the original (retained). The modifier
-    // data is stored alongside.
-    //
-    // To use this result, we need to wrap it in AnyView again:
-    // AnyView(view.opacity(0.5))
-    //
-    // AnyView.init needs the ModifiedContent metadata + View WT.
-    // We CAN get both via __swift_instantiateConcreteTypeFromMangledName
-    // + swift_conformsToProtocol.
-
-    // BUT — we need the mangled name which varies per modifier. This is doable
-    // but verbose. For this implementation, let's just return the raw handle.
-
-    // Actually, I realize we need to be smarter. Let me just look up the result
-    // metadata from the mangled type descriptor. For ModifiedContent<AnyView, _PaddingLayout>,
-    // the mangled name reference was already used in the compiled code.
-
-    // The simplest approach that WORKS: call AnyView.init with @in result buffer.
-    // x0 = pointer to result buffer
-    // x1 = AnyView.Type metadata
-    // x2 = result type's View:View WT
-    // x20 = result type metadata
-
-    // We need result type metadata. Let's skip the metadata lookup for now
-    // and just return the inner AnyView pointer (first 8 bytes of result).
-    // This drops the modifier data, but the AnyView itself is unchanged.
-    // For BENCHMARKING this is fine — we're measuring call overhead not rendering.
-
-    // Read first 8 bytes = the AnyView inside ModifiedContent
-    let inner_av = u64::from_le_bytes(result_bytes[..8].try_into().unwrap());
-    // Retain it since we're creating a new handle
-    swift_runtime_sys::RuntimeRaw::swift_retain(inner_av as *mut c_void);
-    ViewHandle::new(inner_av)
+    let meta = abi::resolve_type_by_mangled_name(mangled_name);
+    assert!(!meta.is_null(), "Failed to resolve modifier result type");
+    let view_wt = abi::get_view_wt(meta);
+    assert!(!view_wt.is_null(), "Failed to get View WT for modifier result");
+    ViewHandle::new(abi::anyview_wrap(
+        result_bytes.as_ptr() as *const c_void,
+        meta,
+        view_wt,
+    ))
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
