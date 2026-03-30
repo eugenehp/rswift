@@ -103,3 +103,5 @@ cached!(button_init,     c"$s7SwiftUI6ButtonVA2A4TextVRszrlE_6actionACyAEGqd___y
 // ── Hosting ──
 cached!(hosting_ctrl_init, c"$s7SwiftUI19NSHostingControllerC8rootViewACyxGx_tcfC");
 cached!(hosting_ctrl_ma,  c"$s7SwiftUI19NSHostingControllerCMa");
+cached!(hosting_view_init, c"$s7SwiftUI13NSHostingViewC04rootD0ACyxGx_tcfC");
+cached!(hosting_view_ma,   c"$s7SwiftUI13NSHostingViewCMa");
