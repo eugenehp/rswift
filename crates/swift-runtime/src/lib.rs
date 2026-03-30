@@ -22,6 +22,9 @@
 
 pub use swift_runtime_sys as sys;
 
+pub mod concurrency;
+pub mod debug;
+pub mod demangle;
 pub mod metadata;
 pub mod retain;
 pub mod string;
