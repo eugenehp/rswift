@@ -2670,6 +2670,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "swiftui-native"
+version = "0.0.1"
+dependencies = [
+ "libc",
+ "swift-runtime",
+ "swift-runtime-sys",
+]
+
+[[package]]
 name = "swiftui-sys"
 version = "0.0.1"
 

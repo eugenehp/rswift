@@ -1,0 +1,19 @@
+[package]
+name = "swiftui-native"
+description = "SwiftUI from pure Rust — no Swift bridge, no shim, only swift-runtime calls"
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/eugenehp/rswift"
+keywords = ["swift", "swiftui", "native", "gui", "macos"]
+
+[lib]
+name = "swiftui_native"
+
+[dependencies]
+swift-runtime = { version = "0.0.2", path = "../swift-runtime" }
+swift-runtime-sys = { version = "0.0.5", path = "../swift-runtime-sys" }
+libc = "0.2"
+
+[lints]
+workspace = true

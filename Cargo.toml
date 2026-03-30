@@ -9,6 +9,7 @@ members = [
     "crates/swiftui-sys",
     "crates/swiftui-macros",
     "crates/swiftui",
+    "crates/swiftui-native",
 
     # ── RealityKit ──
     "crates/realitykit-sys",
